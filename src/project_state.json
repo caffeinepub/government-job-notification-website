@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 5,
+  "summary": "Build a fast, responsive, mobile-friendly, text-heavy Government Job Notification website for Indian students (similar to Sarkari Result) featuring job listings, per-post syllabus downloads, important link buttons, and categorized sections for Latest Jobs, Admit Cards, and Results.",
+  "architectural_notes": [
+    "Prioritize fast loading with a simple, text-heavy, mobile-first responsive design.",
+    "Include a lightweight top announcement/ticker bar (scrolling text) without impacting page load speed."
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-build-a-mobile-friendly-text-heavy-homepage-that-displays-three-clearly-separated-sections-columns-on-desktop-stacked-boxes-on-mobile-for-latest-jobs-admit-cards-and-results-each-section-must-show-a-fast-loading-list-of-posts-with-job-name-start-date-last-date-and-fees-and-each-list-item-must-link-to-a-dedicated-post-detail-page",
+      "title": "Build a mobile-friendly, text-heavy homepage that displays three clearly separated sections (columns on desktop, stacked boxes on mobile) for: Latest Jobs, Admit Cards, and Results. Each section must show a fast-loading list of posts with Job Name, Start Date, Last Date, and Fees, and each list item must link to a dedicated post detail page.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-post-detail-page-for-each-job-admit-card-result-that-includes-1-the-job-title-2-an-important-dates-area-showing-start-date-and-last-date-3-a-fees-area-4-an-important-links-section-with-direct-buttons-for-apply-online-download-notification-and-official-website-that-open-the-provided-urls-and-5-a-syllabus-section-where-users-can-view-the-syllabus-link-and-download-it-via-direct-file-link",
+      "title": "Create a post detail page for each job/admit card/result that includes: (1) the job title, (2) an 'Important Dates' area showing Start Date and Last Date, (3) a Fees area, (4) an 'Important Links' section with direct buttons for 'Apply Online', 'Download Notification', and 'Official Website' that open the provided URLs, and (5) a 'Syllabus' section where users can view the syllabus link and download it (via direct file link).",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-integrate-frontend-data-fetching-with-the-backend-using-react-query-including-loading-empty-error-states-optimized-for-fast-perceived-performance-ensure-the-ui-remains-usable-on-slow-connections-text-first-rendering-minimal-blocking-ui",
+      "title": "Integrate frontend data fetching with the backend using React Query, including loading/empty/error states optimized for fast perceived performance. Ensure the UI remains usable on slow connections (text-first rendering, minimal blocking UI).",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-coherent-simple-visual-theme-suitable-for-a-government-exam-notification-portal-text-heavy-high-contrast-readable-typography-clear-section-headers-and-compact-tables-lists-use-a-restrained-color-palette-avoid-blue-purple-and-keep-styling-consistent-across-homepage-and-detail-pages",
+      "title": "Apply a coherent, simple visual theme suitable for a government exam notification portal (text-heavy, high-contrast, readable typography, clear section headers, and compact tables/lists). Use a restrained color palette (avoid blue/purple) and keep styling consistent across homepage and detail pages.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-prominent-site-wide-scrolling-notice-ticker-marquee-style-at-the-top-of-the-website-in-the-shared-header-layout-that-continuously-scrolls-left-to-right-or-right-to-left-and-displays-an-english-daily-update-message-indicating-users-do-not-need-to-update-and-should-visit-daily-for-new-updates-e-g-no-need-to-update-visit-here-daily-for-new-updates-the-ticker-must-be-visible-on-both-the-homepage-and-post-detail-pages-and-remain-readable-and-mobile-friendly",
+      "title": "Add a prominent, site-wide scrolling notice/ticker (marquee-style) at the top of the website (in the shared header layout) that continuously scrolls left-to-right or right-to-left and displays an English daily-update message indicating users do not need to update and should visit daily for new updates (e.g., \"No need to update — visit here daily for new updates.\"). The ticker must be visible on both the homepage and post detail pages and remain readable and mobile-friendly.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Homepage/job listings showing Job Name, Important Dates (Start & Last), and Fees",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Per-job post detail page with Important Links buttons: Apply Online, Download Notification, Official Website",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Syllabus section per exam/job with view and download capability",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Category layout with separate columns/boxes for Latest Jobs, Admit Cards, and Results",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Simple, mobile-friendly, text-heavy UI optimized for fast loading",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Implement backend data models and query APIs for government job-style posts, including: Job Name, Important Dates (Start Date and Last Date), Fees, Category (Latest Jobs / Admit Cards / Results), Syllabus (view/download URL), and Important Links (Apply Online, Download Notification, Official Website). Provide endpoints to (a) list posts optionally filtered by category and (b) fetch a single post by id.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Add a top scrolling notice/ticker (marquee-style) on the website with a daily-update message (e.g., 'No need to update; visit here daily')",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Government Job Notification Website",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

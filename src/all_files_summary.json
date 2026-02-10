@@ -1,0 +1,19 @@
+{
+  "backend/main.mo": "Motoko backend storing job posts with add, fetch-by-category, and fetch-by-id functions using an in‑memory map.",
+  "feature_evidence.json": "Feature evidence report describing the scrolling notice ticker and listing related files, components, and test IDs.",
+  "frontend-file-summaries.txt": "Prewritten summaries of key frontend files including pages, hooks, components, and Tailwind config.",
+  "frontend/index.css": "Base Tailwind setup defining extensive color tokens and theming variables for light/dark modes.",
+  "frontend/index.html": "HTML entry point mounting the React app and loading main.tsx.",
+  "frontend/src/App.tsx": "Main app router layout with sticky header, scrolling ticker, footer, and routes for home and post details.",
+  "frontend/src/components/SiteNoticeTicker.tsx": "Scrolling marquee-style notice ticker component with repeated text and an animated bell icon.",
+  "frontend/src/hooks/useActor.ts": "Hook creating and caching a backend actor based on Internet Identity, auto‑refreshing dependent queries on change.",
+  "frontend/src/hooks/useInternetIdentity.ts": "Authentication provider and hook managing Internet Identity login, stored identities, and status tracking.",
+  "frontend/src/hooks/useJobPost.ts": "React Query hook fetching a single job post by id using the backend actor with error handling.",
+  "frontend/src/hooks/useJobPosts.ts": "React Query hook fetching job posts optionally filtered by category.",
+  "frontend/src/index.css": "Global Tailwind and typography styles with green/orange palette and readability improvements.",
+  "frontend/src/main.tsx": "App entry mounting React with QueryClientProvider and InternetIdentityProvider.",
+  "frontend/src/pages/HomePage.tsx": "Renders the homepage with three category sections that fetch and display job posts using React Query, showing loading, empty, and error states.",
+  "frontend/src/pages/PostDetailPage.tsx": "Displays detailed information for a selected job post, including dates, fees, and important links, with loading and error handling.",
+  "frontend/tailwind.config.js": "Tailwind configuration defining theme extensions, custom colors, animations, and plugins for typography, container queries, and animations.",
+  "project_state.json": "Stores overall project metadata, requirements, architectural notes, and implemented features for the government job notification site."
+}

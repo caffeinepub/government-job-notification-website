@@ -1,0 +1,10 @@
+{
+  "frontend/src/App.tsx": "Main application component with TanStack Router setup, defining root layout with sticky header (including scrolling ticker), footer, and routes for homepage and post detail pages.",
+  "frontend/src/pages/HomePage.tsx": "Homepage component displaying three category sections (Latest Jobs, Admit Cards, Results) in a responsive grid layout with loading, error, and empty states.",
+  "frontend/src/pages/PostDetailPage.tsx": "Post detail page component showing job information, important dates, fees, action buttons (Apply Online, Download Notification, Official Website), and syllabus section with view/download options.",
+  "frontend/src/hooks/useJobPosts.ts": "React Query hook for fetching job posts list with optional category filtering, includes caching and loading states.",
+  "frontend/src/hooks/useJobPost.ts": "React Query hook for fetching a single job post by ID with error handling and caching.",
+  "frontend/src/index.css": "Global styles with OKLCH color system using green/orange accent palette for government portal aesthetic, optimized for readability and accessibility.",
+  "frontend/tailwind.config.js": "Tailwind configuration with custom color tokens, typography settings, design system utilities, and marquee animation keyframes for the scrolling ticker.",
+  "frontend/src/components/SiteNoticeTicker.tsx": "Reusable scrolling ticker component that displays a continuously animating marquee-style notice message with a bell icon, encouraging users to visit daily for updates."
+}

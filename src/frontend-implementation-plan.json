@@ -1,0 +1,34 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Site-wide scrolling notice/ticker in shared sticky header",
+  "requirements": [
+    {
+      "id": "REQ-6",
+      "summary": "Add a prominent, mobile-friendly marquee-style scrolling ticker in the shared sticky header with an English daily-update message, visible on home and post detail routes without causing layout shift.",
+      "acceptanceCriteria": [
+        "A scrolling ticker/notice bar appears within the shared header area so it is visible on all routes (e.g., '/' and '/post/:postId').",
+        "The ticker text is in English and conveys: no need to update; visit daily for updates.",
+        "The ticker continuously animates (marquee-like) and is readable on mobile (no clipped text; adequate contrast).",
+        "The ticker does not break the existing sticky header behavior and does not cause layout shift that hides page content behind the header."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/SiteNoticeTicker.tsx",
+          "operation": "create",
+          "description": "Create a reusable SiteNoticeTicker component that renders a marquee-like, continuously scrolling notice message (English) with overflow-safe structure (e.g., duplicated inline content for seamless looping) and mobile-friendly typography/spacing to prevent clipping."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Add Tailwind keyframes/animation utilities to support continuous marquee scrolling (left-to-right or right-to-left) and ensure the animation is smooth and continuous across breakpoints."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Wire the SiteNoticeTicker into the shared header layout (within the existing sticky header) so it appears on all routes, and ensure header structure/spacing avoids layout shift or hidden content behind the sticky header."
+        }
+      ]
+    }
+  ]
+}
