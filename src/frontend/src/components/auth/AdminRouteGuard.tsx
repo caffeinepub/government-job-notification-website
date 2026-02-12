@@ -1,9 +1,7 @@
 import React from 'react';
 import { useInternetIdentity } from '../../hooks/useInternetIdentity';
 import { useIsAdmin } from '../../hooks/useIsAdmin';
-import { useClientAdminAuth } from '../../hooks/useClientAdminAuth';
 import AccessDeniedScreen from './AccessDeniedScreen';
-import AdminPasswordRequiredScreen from './AdminPasswordRequiredScreen';
 
 interface AdminRouteGuardProps {
   children: React.ReactNode;
@@ -12,7 +10,6 @@ interface AdminRouteGuardProps {
 export default function AdminRouteGuard({ children }: AdminRouteGuardProps) {
   const { identity, isInitializing } = useInternetIdentity();
   const { data: isAdmin, isLoading: isAdminLoading, isFetched } = useIsAdmin();
-  const { isUnlocked } = useClientAdminAuth();
 
   // Show loading state while checking authentication and admin status
   if (isInitializing || isAdminLoading) {
@@ -35,11 +32,6 @@ export default function AdminRouteGuard({ children }: AdminRouteGuardProps) {
     return <AccessDeniedScreen mode="notAdmin" />;
   }
 
-  // Authenticated and admin, but client-side unlock not satisfied
-  if (!isUnlocked) {
-    return <AdminPasswordRequiredScreen />;
-  }
-
-  // Authenticated, admin, and unlocked
+  // Authenticated and admin - render children (page handles unlock state)
   return <>{children}</>;
 }

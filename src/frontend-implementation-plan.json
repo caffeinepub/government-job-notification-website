@@ -1,90 +1,103 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Admin Panel password-modal unlock flow with localStorage persistence and logout",
+  "title": "Admin Panel: in-page password unlock and gated dashboard controls",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Ensure entering the Admin Panel does not first show an Access Denied/locked screen and instead auto-opens an admin password modal.",
+      "summary": "Remove the destructive 'Access Denied' alert from the Admin Panel unlock flow so it does not block access to the password input.",
       "acceptanceCriteria": [
-        "Navigating to the Admin Panel route/tab does not render an \"Access Denied\" message as the first step when the admin session is not unlocked.",
-        "A modal opens automatically on entry to the Admin Panel when the admin session is not unlocked.",
-        "The modal includes user-facing text in English and includes the prompt text: \"Enter Admin Password\".",
-        "The password input is type=\"password\" (masked/dots)."
+        "Navigating to the Admin Panel no longer shows any red 'Access Denied' alert box.",
+        "The password input is visible on the page when admin access is not yet unlocked."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/auth/AdminPasswordRequiredScreen.tsx",
+          "path": "frontend/src/components/auth/AdminRouteGuard.tsx",
           "operation": "modify",
-          "description": "Change the locked-state view so it immediately opens the admin password modal on render (no initial locked/denied messaging UI). Ensure the modal prompt includes the exact text \"Enter Admin Password\". Verify the component's usage instructions before implementing."
+          "description": "Adjust the Admin Panel guard so that the client-side unlock step does not render the destructive AccessDeniedScreen (or any access-denied UI) while locked; instead, allow the Admin Panel page to render and show its in-page unlock form."
         },
         {
-          "path": "frontend/src/components/RootLayout.tsx",
+          "path": "frontend/src/components/auth/AccessDeniedScreen.tsx",
           "operation": "modify",
-          "description": "Update the \"Admin Panel\" tab click behavior to navigate to the Admin Panel route (e.g., /admin) and rely on the route guard + auto-open modal behavior, rather than opening a modal from the header. Verify the component's usage instructions before implementing."
+          "description": "Ensure AccessDeniedScreen remains limited to genuine 'login required' / 'not admin' states and is not referenced/used by the Admin Panel client-unlock flow."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Implement client-side admin password check with the exact password string, persist unlocked state to localStorage key 'isAdmin', and alert on wrong password.",
+      "summary": "Replace the modal-based admin password gate with a visible in-page 'Admin Login' form inside the Admin Panel page.",
       "acceptanceCriteria": [
-        "The login modal has a primary action labeled \"Login\".",
-        "On clicking \"Login\" with the exact password \"@ni#ra&j*gurja:r\", the app calls localStorage.setItem('isAdmin','true') and closes/hides the modal.",
-        "On clicking \"Login\" with any other password, the app shows a browser alert with exactly: \"Wrong Password!\" and does not set localStorage.isAdmin to true.",
-        "No inline \"Access Denied\" message is shown as the wrong-password error state (use only the requested alert)."
+        "When not unlocked, the Admin Panel shows an in-page form (not a dialog/modal) with the specified headline, placeholder, and button label.",
+        "The 'Unlock Dashboard' button is visually styled as a prominent green primary action (e.g., Tailwind green background) and is larger than a typical small/secondary button.",
+        "No modal is automatically opened for admin password entry (the existing auto-open modal behavior is removed from the Admin Panel flow)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useClientAdminAuth.ts",
+          "path": "frontend/src/components/admin/AdminUnlockInlineForm.tsx",
+          "operation": "create",
+          "description": "Create a simple in-page admin unlock form component rendered directly in the Admin Panel page when locked. It must render headline text exactly 'Admin Login', a password input with placeholder exactly 'Enter Password', and a large green button labeled exactly 'Unlock Dashboard'."
+        },
+        {
+          "path": "frontend/src/pages/admin/AdminDashboardPage.tsx",
           "operation": "modify",
-          "description": "Replace the existing client-admin auth storage with the required localStorage key/value: on successful password match (exact \"@ni#ra&j*gurja:r\") call localStorage.setItem('isAdmin','true'); on mismatch trigger alert(\"Wrong Password!\") and keep locked. Expose logout that clears/resets localStorage 'isAdmin'."
+          "description": "Render the new in-page unlock form when the client admin session is not unlocked, and remove/avoid any modal-based password prompting within the Admin Panel page."
+        },
+        {
+          "path": "frontend/src/components/auth/AdminPasswordRequiredScreen.tsx",
+          "operation": "delete",
+          "description": "Remove the auto-opening password modal screen so the Admin Panel no longer triggers modal/popup behavior for password entry."
         },
         {
           "path": "frontend/src/components/auth/AdminPasswordGateModal.tsx",
-          "operation": "modify",
-          "description": "Update the modal UI text to English and include the exact prompt text \"Enter Admin Password\"; ensure the primary action button label is exactly \"Login\"; remove any inline error messaging like \"Access Denied\" and rely solely on the requested browser alert from the auth hook on wrong password. Keep the input type=\"password\". Verify the component's usage instructions before implementing."
+          "operation": "delete",
+          "description": "Remove the modal-based admin password gate component to fully eliminate modal/popup password entry from the Admin Panel unlock flow."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Persist Admin Panel unlock state across reloads using localStorage 'isAdmin' === 'true' to bypass the modal.",
+      "summary": "Implement the in-page unlock logic: validate password, set localStorage 'isAdmin' to 'true', refresh the Admin Panel section, and alert 'Wrong Password' on failure.",
       "acceptanceCriteria": [
-        "With localStorage.getItem('isAdmin') === 'true', entering/reloading the Admin Panel shows the dashboard content immediately and does not open the login modal.",
-        "With localStorage.getItem('isAdmin') missing or not equal to 'true', entering/reloading the Admin Panel opens the login modal automatically."
+        "Entering the correct password sets localStorage key 'isAdmin' to string value 'true' and the Admin Panel switches to show the dashboard content without requiring a full page reload.",
+        "Entering an incorrect password triggers window.alert('Wrong Password') exactly.",
+        "The local client-side admin auth hook/logic does not emit 'Wrong Password!' (with an exclamation) anywhere in the Admin Panel flow."
       ],
       "file_operations": [
         {
           "path": "frontend/src/hooks/useClientAdminAuth.ts",
           "operation": "modify",
-          "description": "Ensure isUnlocked derives from localStorage.getItem('isAdmin') === 'true' on initial load and subsequent updates, so refresh/navigation correctly preserves or requires the modal."
+          "description": "Update client admin auth logic so failed login triggers window.alert('Wrong Password') exactly (no exclamation), and successful login sets localStorage.setItem('isAdmin','true') and notifies subscribers so the Admin Panel updates without a full page reload."
         },
         {
-          "path": "frontend/src/components/auth/AdminRouteGuard.tsx",
+          "path": "frontend/src/components/admin/AdminUnlockInlineForm.tsx",
           "operation": "modify",
-          "description": "Confirm the guard uses the updated useClientAdminAuth isUnlocked state to decide between rendering protected admin content vs. the auto-opening password-modal locked state view, without rendering AccessDenied for the locked-password case. Verify the component's usage instructions before implementing."
+          "description": "Wire the form submit/button click to call the client admin auth login method and clear/reset the password field appropriately on success/failure."
+        },
+        {
+          "path": "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "operation": "modify",
+          "description": "Subscribe to client admin unlock state (via useClientAdminAuth) so the dashboard content swaps immediately after successful unlock, without navigating away or reloading the page."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "After login, show Admin Panel dashboard actions and add a top-right Logout button that clears localStorage 'isAdmin' and returns the panel to the locked state.",
+      "summary": "Hide Admin Panel dashboard controls until successfully unlocked; show 'Job Posts', 'Settings', and 'Manage Quiz' controls only after unlock and hide again on logout/flag clear.",
       "acceptanceCriteria": [
-        "After a successful admin password login, the Admin Panel shows dashboard options including: \"Job Posts\", \"Quiz\", and \"Settings\".",
-        "A \"Logout\" button is visible in the Admin Panel top-right area while logged in.",
-        "Clicking \"Logout\" clears the localStorage 'isAdmin' flag (so localStorage.getItem('isAdmin') is no longer 'true') and returns the Admin Panel to the locked state (modal required again)."
+        "When not unlocked, the Admin Panel does not render the dashboard navigation/actions for 'Job Posts', 'Settings', or 'Manage Quiz'.",
+        "After a successful unlock, the Admin Panel renders those dashboard navigation/actions normally.",
+        "Logging out (or clearing the unlock flag) hides those controls again and returns to the in-page login form."
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/admin/AdminDashboardPage.tsx",
           "operation": "modify",
-          "description": "Add/replace the top-right control to be a small \"Logout\" button (visible while unlocked) that calls useClientAdminAuth.logout() and returns the admin area to the locked state (so revisiting requires the password modal again). Ensure the dashboard continues to present actions including \"Job Posts\", \"Quiz\", and \"Settings\". Verify the component's usage instructions before implementing."
+          "description": "Gate rendering of the dashboard navigation/actions (including the controls for 'Job Posts', 'Settings', and 'Manage Quiz') behind the unlocked state; when locked, render only the in-page unlock form. Ensure logout clears the unlock flag and returns the view to the unlock form."
         },
         {
-          "path": "frontend/src/components/auth/AdminPasswordGateModal.tsx",
+          "path": "frontend/src/components/auth/AdminRouteGuard.tsx",
           "operation": "modify",
-          "description": "On successful login, close/hide the modal and allow the Admin Dashboard UI to be revealed (no intermediate denied/locked screen). Verify the component's usage instructions before implementing."
+          "description": "Ensure the route guard does not render dashboard controls while locked and delegates locked UI to the Admin Panel page (so the page can hide controls and show the in-page unlock form consistently)."
         }
       ]
     }

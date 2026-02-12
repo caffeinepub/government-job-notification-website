@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useClientAdminAuth } from '../../hooks/useClientAdminAuth';
+import AdminUnlockInlineForm from '../../components/admin/AdminUnlockInlineForm';
 import PhotoUploadFabTool from '../../components/admin/PhotoUploadFabTool';
 import ManageDailyQuizPanel from '../../components/admin/ManageDailyQuizPanel';
 import AdminSettingsDialog from '../../components/admin/AdminSettingsDialog';
@@ -22,9 +23,19 @@ import { Plus, Pencil, Trash2, ExternalLink, FileText, BookOpen, Briefcase, Arro
 import { toast } from 'sonner';
 
 export default function AdminDashboardPage() {
+  const { isUnlocked, logout } = useClientAdminAuth();
+
+  // If not unlocked, show the inline login form
+  if (!isUnlocked) {
+    return <AdminUnlockInlineForm />;
+  }
+
+  return <AdminDashboardContent logout={logout} />;
+}
+
+function AdminDashboardContent({ logout }: { logout: () => void }) {
   const { links, add: addLink, update: updateLink, remove: removeLink } = useOfficialLinks();
   const { categories, addCategory, updateCategory, removeCategory, addItem, updateItem, removeItem } = useStudyCorner();
-  const { logout } = useClientAdminAuth();
   const { data: schemes, isLoading: schemesLoading } = useSchemes();
   const { addScheme, updateScheme, deleteScheme } = useSchemeMutations();
 
@@ -271,7 +282,7 @@ export default function AdminDashboardPage() {
             className="flex-1 min-w-[140px] gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground bg-purple-100 dark:bg-purple-950 hover:bg-purple-200 dark:hover:bg-purple-900"
           >
             <Brain className="w-4 h-4" />
-            <span>Quiz</span>
+            <span>Manage Quiz</span>
           </TabsTrigger>
           <TabsTrigger 
             value="schemes" 
@@ -455,15 +466,7 @@ export default function AdminDashboardPage() {
           </Dialog>
 
           {/* Edit Scheme Dialog */}
-          <Dialog
-            open={editingScheme !== null}
-            onOpenChange={(open) => {
-              if (!open) {
-                setEditingScheme(null);
-                setSchemeForm({ name: '', category: 'Rajasthan', link: '' });
-              }
-            }}
-          >
+          <Dialog open={!!editingScheme} onOpenChange={(open) => !open && setEditingScheme(null)}>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Edit Scheme</DialogTitle>
@@ -477,6 +480,7 @@ export default function AdminDashboardPage() {
                     onChange={(e) =>
                       setSchemeForm({ ...schemeForm, name: e.target.value })
                     }
+                    placeholder="e.g., Mukhyamantri Chiranjeevi Yojana"
                   />
                 </div>
                 <div>
@@ -504,17 +508,12 @@ export default function AdminDashboardPage() {
                     onChange={(e) =>
                       setSchemeForm({ ...schemeForm, link: e.target.value })
                     }
+                    placeholder="https://example.com"
                   />
                 </div>
               </div>
               <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setEditingScheme(null);
-                    setSchemeForm({ name: '', category: 'Rajasthan', link: '' });
-                  }}
-                >
+                <Button variant="outline" onClick={() => setEditingScheme(null)}>
                   Cancel
                 </Button>
                 <Button onClick={handleUpdateScheme}>Update Scheme</Button>
@@ -523,23 +522,17 @@ export default function AdminDashboardPage() {
           </Dialog>
 
           {/* Delete Scheme Confirmation */}
-          <AlertDialog
-            open={deleteSchemeId !== null}
-            onOpenChange={(open) => {
-              if (!open) setDeleteSchemeId(null);
-            }}
-          >
+          <AlertDialog open={!!deleteSchemeId} onOpenChange={(open) => !open && setDeleteSchemeId(null)}>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete Scheme</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to delete this scheme? This action cannot be
-                  undone.
+                  Are you sure you want to delete this scheme? This action cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDeleteScheme}>
+                <AlertDialogAction onClick={handleDeleteScheme} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                   Delete
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -561,7 +554,6 @@ export default function AdminDashboardPage() {
                 <Plus className="w-4 h-4" />
                 Add Link
               </Button>
-
               <div className="space-y-2">
                 {links.map((link) => (
                   <div
@@ -617,17 +609,14 @@ export default function AdminDashboardPage() {
                 <Plus className="w-4 h-4" />
                 Add Category
               </Button>
-
               <div className="space-y-4">
                 {categories.map((category) => (
                   <div key={category.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center justify-between mb-3">
                       <div className="flex-1">
-                        <h4 className="font-semibold text-lg">{category.name}</h4>
+                        <h4 className="font-medium">{category.name}</h4>
                         {category.description && (
-                          <p className="text-sm text-muted-foreground">
-                            {category.description}
-                          </p>
+                          <p className="text-sm text-muted-foreground">{category.description}</p>
                         )}
                       </div>
                       <div className="flex gap-2">
@@ -653,9 +642,7 @@ export default function AdminDashboardPage() {
                         </Button>
                       </div>
                     </div>
-
                     <Separator className="my-3" />
-
                     <div className="space-y-2">
                       <Button
                         variant="outline"
@@ -666,25 +653,26 @@ export default function AdminDashboardPage() {
                         <Plus className="w-3 h-3" />
                         Add Item
                       </Button>
-
                       {category.items.map((item, index) => (
                         <div
                           key={item.id}
                           className="flex items-center justify-between p-2 bg-muted/50 rounded"
                         >
-                          <div className="flex items-center gap-2 flex-1">
-                            {item.type === 'pdf' ? (
-                              <FileText className="w-4 h-4 text-red-600" />
-                            ) : (
-                              <ExternalLink className="w-4 h-4" />
-                            )}
-                            <span className="text-sm">{item.title}</span>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              {item.type === 'pdf' ? (
+                                <FileText className="w-4 h-4" />
+                              ) : (
+                                <ExternalLink className="w-4 h-4" />
+                              )}
+                              <span className="text-sm">{item.title}</span>
+                            </div>
                           </div>
                           <div className="flex gap-1">
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7"
+                              className="h-8 w-8"
                               onClick={() => moveItemInCategory(category.id, index, 'up')}
                               disabled={index === 0}
                             >
@@ -693,10 +681,8 @@ export default function AdminDashboardPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7"
-                              onClick={() =>
-                                moveItemInCategory(category.id, index, 'down')
-                              }
+                              className="h-8 w-8"
+                              onClick={() => moveItemInCategory(category.id, index, 'down')}
                               disabled={index === category.items.length - 1}
                             >
                               <ArrowDown className="w-3 h-3" />
@@ -704,7 +690,7 @@ export default function AdminDashboardPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7"
+                              className="h-8 w-8"
                               onClick={() => {
                                 setEditingItem({ categoryId: category.id, itemId: item.id });
                                 setItemForm({
@@ -719,7 +705,7 @@ export default function AdminDashboardPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7"
+                              className="h-8 w-8"
                               onClick={() => handleDeleteItem(category.id, item.id)}
                             >
                               <Trash2 className="w-3 h-3 text-destructive" />
@@ -738,20 +724,20 @@ export default function AdminDashboardPage() {
             <CardHeader>
               <CardTitle>API Settings</CardTitle>
               <CardDescription>
-                Configure API keys and external integrations
+                Configure API keys and other settings
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button onClick={() => setSettingsOpen(true)} className="gap-2">
                 <Settings className="w-4 h-4" />
-                Manage Gemini API Key
+                Manage Settings
               </Button>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
-      {/* Dialogs for Official Links */}
+      {/* Dialogs */}
       <Dialog open={newLinkDialog} onOpenChange={setNewLinkDialog}>
         <DialogContent>
           <DialogHeader>
@@ -786,15 +772,7 @@ export default function AdminDashboardPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog
-        open={editingLink !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setEditingLink(null);
-            setLinkForm({ label: '', url: '' });
-          }
-        }}
-      >
+      <Dialog open={!!editingLink} onOpenChange={(open) => !open && setEditingLink(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Link</DialogTitle>
@@ -806,6 +784,7 @@ export default function AdminDashboardPage() {
                 id="edit-link-label"
                 value={linkForm.label}
                 onChange={(e) => setLinkForm({ ...linkForm, label: e.target.value })}
+                placeholder="e.g., SSO Login"
               />
             </div>
             <div>
@@ -814,17 +793,12 @@ export default function AdminDashboardPage() {
                 id="edit-link-url"
                 value={linkForm.url}
                 onChange={(e) => setLinkForm({ ...linkForm, url: e.target.value })}
+                placeholder="https://example.com"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setEditingLink(null);
-                setLinkForm({ label: '', url: '' });
-              }}
-            >
+            <Button variant="outline" onClick={() => setEditingLink(null)}>
               Cancel
             </Button>
             <Button onClick={() => editingLink && handleUpdateLink(editingLink)}>
@@ -834,7 +808,6 @@ export default function AdminDashboardPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Dialogs for Study Corner */}
       <Dialog open={newCategoryDialog} onOpenChange={setNewCategoryDialog}>
         <DialogContent>
           <DialogHeader>
@@ -846,10 +819,8 @@ export default function AdminDashboardPage() {
               <Input
                 id="category-name"
                 value={categoryForm.name}
-                onChange={(e) =>
-                  setCategoryForm({ ...categoryForm, name: e.target.value })
-                }
-                placeholder="e.g., General Science"
+                onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                placeholder="e.g., Geography"
               />
             </div>
             <div>
@@ -857,10 +828,8 @@ export default function AdminDashboardPage() {
               <Textarea
                 id="category-description"
                 value={categoryForm.description}
-                onChange={(e) =>
-                  setCategoryForm({ ...categoryForm, description: e.target.value })
-                }
-                placeholder="Brief description of this category"
+                onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
+                placeholder="Brief description of the category"
               />
             </div>
           </div>
@@ -873,15 +842,7 @@ export default function AdminDashboardPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog
-        open={editingCategory !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setEditingCategory(null);
-            setCategoryForm({ name: '', description: '' });
-          }
-        }}
-      >
+      <Dialog open={!!editingCategory} onOpenChange={(open) => !open && setEditingCategory(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Category</DialogTitle>
@@ -892,52 +853,32 @@ export default function AdminDashboardPage() {
               <Input
                 id="edit-category-name"
                 value={categoryForm.name}
-                onChange={(e) =>
-                  setCategoryForm({ ...categoryForm, name: e.target.value })
-                }
+                onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                placeholder="e.g., Geography"
               />
             </div>
             <div>
-              <Label htmlFor="edit-category-description">
-                Description (Optional)
-              </Label>
+              <Label htmlFor="edit-category-description">Description (Optional)</Label>
               <Textarea
                 id="edit-category-description"
                 value={categoryForm.description}
-                onChange={(e) =>
-                  setCategoryForm({ ...categoryForm, description: e.target.value })
-                }
+                onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
+                placeholder="Brief description of the category"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setEditingCategory(null);
-                setCategoryForm({ name: '', description: '' });
-              }}
-            >
+            <Button variant="outline" onClick={() => setEditingCategory(null)}>
               Cancel
             </Button>
-            <Button
-              onClick={() => editingCategory && handleUpdateCategory(editingCategory)}
-            >
+            <Button onClick={() => editingCategory && handleUpdateCategory(editingCategory)}>
               Update Category
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      <Dialog
-        open={newItemDialog !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setNewItemDialog(null);
-            setItemForm({ title: '', url: '', type: 'link' });
-          }
-        }}
-      >
+      <Dialog open={!!newItemDialog} onOpenChange={(open) => !open && setNewItemDialog(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add New Item</DialogTitle>
@@ -949,7 +890,7 @@ export default function AdminDashboardPage() {
                 id="item-title"
                 value={itemForm.title}
                 onChange={(e) => setItemForm({ ...itemForm, title: e.target.value })}
-                placeholder="e.g., Physics Notes"
+                placeholder="e.g., World Geography Notes"
               />
             </div>
             <div>
@@ -958,16 +899,14 @@ export default function AdminDashboardPage() {
                 id="item-url"
                 value={itemForm.url}
                 onChange={(e) => setItemForm({ ...itemForm, url: e.target.value })}
-                placeholder="https://example.com or #"
+                placeholder="https://example.com or #anchor"
               />
             </div>
             <div>
               <Label htmlFor="item-type">Type</Label>
               <Select
                 value={itemForm.type}
-                onValueChange={(value: 'link' | 'pdf') =>
-                  setItemForm({ ...itemForm, type: value })
-                }
+                onValueChange={(value: 'link' | 'pdf') => setItemForm({ ...itemForm, type: value })}
               >
                 <SelectTrigger id="item-type">
                   <SelectValue />
@@ -980,13 +919,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setNewItemDialog(null);
-                setItemForm({ title: '', url: '', type: 'link' });
-              }}
-            >
+            <Button variant="outline" onClick={() => setNewItemDialog(null)}>
               Cancel
             </Button>
             <Button onClick={() => newItemDialog && handleAddItem(newItemDialog)}>
@@ -996,15 +929,7 @@ export default function AdminDashboardPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog
-        open={editingItem !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setEditingItem(null);
-            setItemForm({ title: '', url: '', type: 'link' });
-          }
-        }}
-      >
+      <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Item</DialogTitle>
@@ -1016,6 +941,7 @@ export default function AdminDashboardPage() {
                 id="edit-item-title"
                 value={itemForm.title}
                 onChange={(e) => setItemForm({ ...itemForm, title: e.target.value })}
+                placeholder="e.g., World Geography Notes"
               />
             </div>
             <div>
@@ -1024,15 +950,14 @@ export default function AdminDashboardPage() {
                 id="edit-item-url"
                 value={itemForm.url}
                 onChange={(e) => setItemForm({ ...itemForm, url: e.target.value })}
+                placeholder="https://example.com or #anchor"
               />
             </div>
             <div>
               <Label htmlFor="edit-item-type">Type</Label>
               <Select
                 value={itemForm.type}
-                onValueChange={(value: 'link' | 'pdf') =>
-                  setItemForm({ ...itemForm, type: value })
-                }
+                onValueChange={(value: 'link' | 'pdf') => setItemForm({ ...itemForm, type: value })}
               >
                 <SelectTrigger id="edit-item-type">
                   <SelectValue />
@@ -1045,19 +970,12 @@ export default function AdminDashboardPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setEditingItem(null);
-                setItemForm({ title: '', url: '', type: 'link' });
-              }}
-            >
+            <Button variant="outline" onClick={() => setEditingItem(null)}>
               Cancel
             </Button>
             <Button
               onClick={() =>
-                editingItem &&
-                handleUpdateItem(editingItem.categoryId, editingItem.itemId)
+                editingItem && handleUpdateItem(editingItem.categoryId, editingItem.itemId)
               }
             >
               Update Item

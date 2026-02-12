@@ -1,58 +1,41 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T23:22:36.836Z",
-  "summary": "The diff implements a password modal component and a client-side admin auth hook using localStorage('isAdmin') with the correct password/alert behavior, but it’s not evident from the provided diff that the Admin Panel route no longer shows an initial “Access Denied” screen or that the Admin Dashboard contains the required visible Logout button and the specified dashboard actions. The diff also adds unrequested sessionStorage/url-param token persistence.",
+  "generatedAt": "2026-02-12T23:41:44.134Z",
+  "summary": "The diff adds an inline, in-page Admin Login form and a localStorage-based unlock hook, and gates the AdminDashboardPage behind the unlock state. However, the AdminRouteGuard still renders an AccessDeniedScreen for unauthenticated/non-admin users, which likely keeps the blocking 'Access Denied' UI in the Admin Panel flow, conflicting with REQ-1/REQ-2 expectations.",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "Navigating to the Admin Panel must not render an \"Access Denied\" message first; it must immediately open the password modal when not unlocked.",
-      "reason": "While a modal screen/component is added (AdminPasswordRequiredScreen), the diff does not show any change to the admin route guard/routing that would prevent an existing \"Access Denied\" screen from rendering first. No guard/route file changes are included in the modified files list.",
+      "requirement": "Remove the red 'Access Denied' message UI from the Admin Panel flow so it no longer blocks access to the password input.",
+      "reason": "AdminRouteGuard still returns <AccessDeniedScreen ...> for both unauthenticated users and authenticated-but-not-admin users, so the access-denied screen can still render and block the Admin Panel unlock flow rather than showing the password input.",
       "evidence": [
-        "frontend/src/components/auth/AdminPasswordRequiredScreen.tsx",
-        "frontend-file-summaries.txt (mentions AdminRouteGuard wrapping admin routes, but no diff for it)"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "requirement": "Show a small \"Logout\" button in the top-right of the Admin Panel while logged in, clearing localStorage 'isAdmin' and returning the panel to locked state.",
-      "reason": "The hook provides a logout() function, and AdminDashboardPage imports/uses logout, but the provided (truncated) AdminDashboardPage diff does not show any actual rendered \"Logout\" button in the top-right or any UI wiring that triggers logout and returns to locked state.",
-      "evidence": [
-        "frontend/src/hooks/useClientAdminAuth.ts",
-        "frontend/src/pages/admin/AdminDashboardPage.tsx (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "requirement": "After successful login, the Admin Panel dashboard shows actions including \"Job Posts\", \"Quiz\", and \"Settings\".",
-      "reason": "The diff snippet of AdminDashboardPage does not show the presence of these dashboard options/actions labeled exactly as required. Since the file is truncated, this cannot be confirmed from the provided evidence.",
-      "evidence": [
-        "frontend/src/pages/admin/AdminDashboardPage.tsx (truncated)"
+        "frontend/src/components/auth/AdminRouteGuard.tsx"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Persisting an additional admin secret/token (ADMIN_TOKEN_KEY='caffeineAdminToken') via storeSessionParameter/clearSessionParameter (sessionStorage/url params) on login/logout.",
-      "reason": "Not requested. The BuildRequest specifies only localStorage key 'isAdmin' with value 'true' for session persistence and explicitly limits scope to the login modal flow/persistence/logout; adding extra token persistence is beyond requirements.",
+      "description": "Persisting an additional admin secret/token in sessionStorage via urlParams utilities (ADMIN_TOKEN_KEY = 'caffeineAdminToken') as part of the local unlock flow.",
+      "reason": "REQ-3 only specifies validating against the password and setting localStorage key 'isAdmin' to 'true' (and showing a browser alert on failure). Storing the password/secret elsewhere (sessionStorage) was not requested.",
       "evidence": [
         "frontend/src/hooks/useClientAdminAuth.ts"
       ]
     },
     {
-      "description": "Custom subscription mechanism using useSyncExternalStore and cross-tab storage event syncing for admin unlock state.",
-      "reason": "Not requested; requirements only call for localStorage persistence and gating behavior, not a reactive external-store implementation or multi-tab synchronization.",
+      "description": "Gating the entire AdminDashboardPage content behind isUnlocked (showing only the login form until unlocked), rather than only hiding the specific 'Job Posts', 'Settings', and 'Manage Quiz' controls.",
+      "reason": "REQ-4 explicitly calls out hiding only those dashboard controls until unlocked, and the non-goals warn against changing the admin feature set beyond gating specified buttons/sections. The diff shows the whole page returns the login form when locked, which may hide more than requested.",
       "evidence": [
-        "frontend/src/hooks/useClientAdminAuth.ts"
+        "frontend/src/pages/admin/AdminDashboardPage.tsx"
       ]
     }
   ],
-  "confidence": 0.62,
+  "confidence": 0.68,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/components/RootLayout.tsx",
+    "frontend/src/components/admin/AdminUnlockInlineForm.tsx",
     "frontend/src/components/auth/AdminPasswordGateModal.tsx",
     "frontend/src/components/auth/AdminPasswordRequiredScreen.tsx",
+    "frontend/src/components/auth/AdminRouteGuard.tsx",
     "frontend/src/hooks/useClientAdminAuth.ts",
     "frontend/src/pages/admin/AdminDashboardPage.tsx",
     "project_state.json"

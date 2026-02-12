@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-change-the-admin-panel-access-ux-so-clicking-the-admin-panel-tab-never-immediately-shows-an-access-denied-screen-instead-it-must-immediately-open-a-popup-modal-that-asks-the-user-to-enter-an-admin-password",
-      "featureTitle": "Change the Admin Panel access UX so clicking the \"Admin Panel\" tab never immediately shows an \"Access Denied\" screen; instead, it must immediately open a popup/modal that asks the user to enter an admin password.",
+      "featureId": "feature-remove-the-red-access-denied-message-ui-from-the-admin-panel-flow-so-it-no-longer-blocks-access-to-the-password-input-specifically-eliminate-the-destructive-alert-box-rendered-by-the-current-access-denied-screen-from-admin-navigation-guards-and-remove-any-references-that-cause-it-to-render-for-the-admin-panel-unlock-flow",
+      "featureTitle": "Remove the red 'Access Denied' message UI from the Admin Panel flow so it no longer blocks access to the password input. Specifically, eliminate the destructive alert box rendered by the current access-denied screen from admin navigation/guards (and remove any references that cause it to render for the Admin Panel unlock flow).",
       "files": [
-        "frontend/src/components/RootLayout.tsx",
-        "frontend/src/components/auth/AdminPasswordRequiredScreen.tsx"
+        "frontend/src/components/auth/AdminRouteGuard.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -22,11 +21,13 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-client-side-admin-authentication-using-the-exact-password-string-ni-ra-j-gurja-r-and-store-the-session-flag-using-localstorage-setitem-isadmin-true-on-successful-login-if-the-password-is-incorrect-show-an-alert-with-the-exact-text-wrong-password",
-      "featureTitle": "Implement client-side admin authentication using the exact password string \"@ni#ra&j*gurja:r\" and store the session flag using localStorage.setItem('isAdmin','true') on successful login; if the password is incorrect, show an alert with the exact text \"Wrong Password!\".",
+      "featureId": "feature-replace-the-current-modal-based-admin-password-gate-with-a-simple-visible-in-page-login-form-rendered-directly-inside-the-admin-panel-page-when-the-admin-session-is-not-unlocked-no-modals-popups-the-form-must-have-1-headline-text-exactly-admin-login-2-a-password-input-type-password-with-placeholder-exactly-enter-password-and-3-a-large-green-button-labeled-exactly-unlock-dashboard",
+      "featureTitle": "Replace the current modal-based admin password gate with a simple, visible, in-page login form rendered directly inside the Admin Panel page when the admin session is not unlocked (no modals/popups). The form must have: (1) headline text exactly 'Admin Login', (2) a password input (type='password') with placeholder exactly 'Enter Password', and (3) a large green button labeled exactly 'Unlock Dashboard'.",
       "files": [
+        "frontend/src/components/admin/AdminUnlockInlineForm.tsx",
         "frontend/src/components/auth/AdminPasswordGateModal.tsx",
-        "frontend/src/hooks/useClientAdminAuth.ts"
+        "frontend/src/components/auth/AdminPasswordRequiredScreen.tsx",
+        "frontend/src/pages/admin/AdminDashboardPage.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -42,10 +43,12 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-persistence-on-page-load-for-the-admin-panel-if-localstorage-isadmin-is-the-string-true-show-the-admin-panel-dashboard-directly-otherwise-show-the-login-modal",
-      "featureTitle": "Add persistence on page load for the Admin Panel: if localStorage 'isAdmin' is the string 'true', show the Admin Panel dashboard directly; otherwise show the login modal.",
+      "featureId": "feature-implement-the-requested-unlock-logic-for-the-in-page-admin-panel-login-form-on-clicking-unlock-dashboard-validate-the-password-exactly-against-ni-ra-j-gurja-r-if-correct-call-localstorage-setitem-isadmin-true-and-refresh-the-admin-panel-section-so-the-dashboard-content-becomes-visible-if-incorrect-show-a-standard-browser-alert-with-text-exactly-wrong-password-no-extra-punctuation",
+      "featureTitle": "Implement the requested unlock logic for the in-page Admin Panel login form: on clicking 'Unlock Dashboard', validate the password exactly against '@ni#ra&j*gurja:r'. If correct, call localStorage.setItem('isAdmin','true') and refresh the Admin Panel section so the dashboard content becomes visible. If incorrect, show a standard browser alert with text exactly 'Wrong Password' (no extra punctuation).",
       "files": [
-        "frontend/src/hooks/useClientAdminAuth.ts"
+        "frontend/src/components/admin/AdminUnlockInlineForm.tsx",
+        "frontend/src/hooks/useClientAdminAuth.ts",
+        "frontend/src/pages/admin/AdminDashboardPage.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -61,10 +64,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-after-successful-login-reveal-the-admin-panel-dashboard-actions-including-job-posts-quiz-and-settings-and-add-a-small-logout-button-in-the-top-right-of-the-admin-panel-that-clears-the-admin-session-by-removing-resetting-localstorage-isadmin-and-returns-the-admin-panel-to-the-locked-state-login-modal-shown-on-next-view",
-      "featureTitle": "After successful login, reveal the Admin Panel dashboard actions (including \"Job Posts\", \"Quiz\", and \"Settings\") and add a small \"Logout\" button in the top-right of the Admin Panel that clears the admin session by removing/resetting localStorage 'isAdmin' and returns the Admin Panel to the locked state (login modal shown on next view).",
+      "featureId": "feature-hide-admin-panel-dashboard-controls-until-successfully-unlocked-only-render-the-job-posts-settings-and-manage-quiz-buttons-controls-after-localstorage-isadmin-has-been-set-to-true-i-e-after-successful-unlock",
+      "featureTitle": "Hide Admin Panel dashboard controls until successfully unlocked: only render the 'Job Posts', 'Settings', and 'Manage Quiz' buttons/controls after localStorage 'isAdmin' has been set to 'true' (i.e., after successful unlock).",
       "files": [
-        "frontend/src/components/auth/AdminPasswordGateModal.tsx",
+        "frontend/src/components/auth/AdminRouteGuard.tsx",
         "frontend/src/pages/admin/AdminDashboardPage.tsx"
       ],
       "components": [

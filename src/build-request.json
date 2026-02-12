@@ -1,92 +1,88 @@
 {
   "kind": "build_request",
-  "title": "Fix Admin Panel access flow with password login modal, localStorage persistence, and logout",
+  "title": "Unblock Admin Panel with in-page password login and hide dashboard controls until unlocked",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Change the Admin Panel access UX so clicking the \"Admin Panel\" tab never immediately shows an \"Access Denied\" screen; instead, it must immediately open a popup/modal that asks the user to enter an admin password.",
+      "text": "Remove the red 'Access Denied' message UI from the Admin Panel flow so it no longer blocks access to the password input. Specifically, eliminate the destructive alert box rendered by the current access-denied screen from admin navigation/guards (and remove any references that cause it to render for the Admin Panel unlock flow).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3"
+          "msg-6"
         ],
         "quotes": [
-          "When I click the 'Admin Panel' tab, do NOT show the 'Access Denied' message immediately.\n​Instead, trigger a Popup/Modal asking: 'Enter Admin Password'."
+          "DELETE the 'Access Denied' Error:\n\u000bRemove the red 'Access Denied' message box completely from the code. It is blocking me."
         ]
       },
       "acceptanceCriteria": [
-        "Navigating to the Admin Panel route/tab does not render an \"Access Denied\" message as the first step when the admin session is not unlocked.",
-        "A modal opens automatically on entry to the Admin Panel when the admin session is not unlocked.",
-        "The modal includes user-facing text in English and includes the prompt text: \"Enter Admin Password\".",
-        "The password input is type=\"password\" (masked/dots)."
+        "Navigating to the Admin Panel no longer shows any red 'Access Denied' alert box.",
+        "The password input is visible on the page when admin access is not yet unlocked."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Implement client-side admin authentication using the exact password string \"@ni#ra&j*gurja:r\" and store the session flag using localStorage.setItem('isAdmin','true') on successful login; if the password is incorrect, show an alert with the exact text \"Wrong Password!\".",
+      "text": "Replace the current modal-based admin password gate with a simple, visible, in-page login form rendered directly inside the Admin Panel page when the admin session is not unlocked (no modals/popups). The form must have: (1) headline text exactly 'Admin Login', (2) a password input (type='password') with placeholder exactly 'Enter Password', and (3) a large green button labeled exactly 'Unlock Dashboard'.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3"
+          "msg-6"
         ],
         "quotes": [
-          "When I click 'Login', check the password against this exact string: @ni#ra&j*gurja&j*gurja:r\n​If Correct:\n​Set localStorage.setItem('isAdmin', 'true').\n​...\n​If Wrong: Show an alert 'Wrong Password!'."
+          "CREATE a Visible Login Form (No Modals):\n\u000binside the 'Admin Panel' section, check if the user is logged in.\n\u000bIf NOT logged in: Render a simple, visible form directly on the page (not a popup).\n\u000bHeadline: 'Admin Login'\n\u000bInput: Type=password, Placeholder='Enter Password'\n\u000bButton: A big green button labeled 'Unlock Dashboard'."
         ]
       },
       "acceptanceCriteria": [
-        "The login modal has a primary action labeled \"Login\".",
-        "On clicking \"Login\" with the exact password \"@ni#ra&j*gurja:r\", the app calls localStorage.setItem('isAdmin','true') and closes/hides the modal.",
-        "On clicking \"Login\" with any other password, the app shows a browser alert with exactly: \"Wrong Password!\" and does not set localStorage.isAdmin to true.",
-        "No inline \"Access Denied\" message is shown as the wrong-password error state (use only the requested alert)."
+        "When not unlocked, the Admin Panel shows an in-page form (not a dialog/modal) with the specified headline, placeholder, and button label.",
+        "The 'Unlock Dashboard' button is visually styled as a prominent green primary action (e.g., Tailwind green background) and is larger than a typical small/secondary button.",
+        "No modal is automatically opened for admin password entry (the existing auto-open modal behavior is removed from the Admin Panel flow)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add persistence on page load for the Admin Panel: if localStorage 'isAdmin' is the string 'true', show the Admin Panel dashboard directly; otherwise show the login modal.",
+      "text": "Implement the requested unlock logic for the in-page Admin Panel login form: on clicking 'Unlock Dashboard', validate the password exactly against '@ni#ra&j*gurja:r'. If correct, call localStorage.setItem('isAdmin','true') and refresh the Admin Panel section so the dashboard content becomes visible. If incorrect, show a standard browser alert with text exactly 'Wrong Password' (no extra punctuation).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3"
+          "msg-6"
         ],
         "quotes": [
-          "On page load, check if isAdmin is 'true' in Local Storage.\n​If true, show the Dashboard directly.\n​If false, show the Login Modal."
+          "The Logic:\n\u000bWhen I click 'Unlock Dashboard', check if the password is @ni#ra&j*gurja:r\n\u000bIf correct -> Save localStorage.setItem('isAdmin', 'true') -> Refresh the section to show the Dashboard (Job Posts, Settings, etc.).\n\u000bIf wrong -> Show a standard browser alert: 'Wrong Password'."
         ]
       },
       "acceptanceCriteria": [
-        "With localStorage.getItem('isAdmin') === 'true', entering/reloading the Admin Panel shows the dashboard content immediately and does not open the login modal.",
-        "With localStorage.getItem('isAdmin') missing or not equal to 'true', entering/reloading the Admin Panel opens the login modal automatically."
+        "Entering the correct password sets localStorage key 'isAdmin' to string value 'true' and the Admin Panel switches to show the dashboard content without requiring a full page reload.",
+        "Entering an incorrect password triggers window.alert('Wrong Password') exactly.",
+        "The local client-side admin auth hook/logic does not emit 'Wrong Password!' (with an exclamation) anywhere in the Admin Panel flow."
       ]
     },
     {
       "id": "REQ-4",
-      "text": "After successful login, reveal the Admin Panel dashboard actions (including \"Job Posts\", \"Quiz\", and \"Settings\") and add a small \"Logout\" button in the top-right of the Admin Panel that clears the admin session by removing/resetting localStorage 'isAdmin' and returns the Admin Panel to the locked state (login modal shown on next view).",
+      "text": "Hide Admin Panel dashboard controls until successfully unlocked: only render the 'Job Posts', 'Settings', and 'Manage Quiz' buttons/controls after localStorage 'isAdmin' has been set to 'true' (i.e., after successful unlock).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3"
+          "msg-6"
         ],
         "quotes": [
-          "Reveal the Dashboard (Job Posts, Quiz, Settings buttons).\n...\nAdd a small 'Logout' button in the top-right corner of the Admin Panel to clear the session."
+          "The Dashboard (Hidden Content):\n\u000bOnly show the 'Job Posts', 'Settings', and 'Manage Quiz' buttons IF the user has successfully logged in."
         ]
       },
       "acceptanceCriteria": [
-        "After a successful admin password login, the Admin Panel shows dashboard options including: \"Job Posts\", \"Quiz\", and \"Settings\".",
-        "A \"Logout\" button is visible in the Admin Panel top-right area while logged in.",
-        "Clicking \"Logout\" clears the localStorage 'isAdmin' flag (so localStorage.getItem('isAdmin') is no longer 'true') and returns the Admin Panel to the locked state (modal required again)."
+        "When not unlocked, the Admin Panel does not render the dashboard navigation/actions for 'Job Posts', 'Settings', or 'Manage Quiz'.",
+        "After a successful unlock, the Admin Panel renders those dashboard navigation/actions normally.",
+        "Logging out (or clearing the unlock flag) hides those controls again and returns to the in-page login form."
       ]
     }
   ],
   "constraints": [
-    "Do not edit any files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or anything in frontend/src/components/ui (compose instead of modifying UI primitives).",
-    "Use English for all user-facing text.",
-    "Use the exact admin password string provided by the user without modifications: @ni#ra&j*gurja:r.",
-    "Use localStorage key exactly 'isAdmin' with value exactly 'true' for the admin session flag."
+    "Do not edit files under frontend/src/components/ui (shadcn components) or other immutable paths listed in SYSTEM_CONTEXT.",
+    "Keep the backend as a single Motoko actor; no backend changes are required for this fix unless strictly necessary."
   ],
   "nonGoals": [
-    "Do not implement or change Internet Identity authentication in this request.",
-    "Do not add any backend/admin-role changes in Motoko for this request (client-side gating only, per user instructions).",
-    "Do not add new admin features beyond the requested login modal flow, persistence, and logout."
+    "Implementing a secure server-side admin authentication system (this change is explicitly localStorage-based).",
+    "Adding third-party authentication providers beyond existing Internet Identity integration.",
+    "Changing admin feature set beyond making the login form visible and gating the specified dashboard buttons/sections."
   ],
   "imageRequirements": {
     "required": [],

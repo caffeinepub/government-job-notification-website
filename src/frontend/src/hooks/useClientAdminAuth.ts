@@ -55,7 +55,7 @@ export function useClientAdminAuth() {
       notifySubscribers();
       return true;
     } else {
-      alert('Wrong Password!');
+      alert('Wrong Password');
       return false;
     }
   }, []);
