@@ -2,53 +2,171 @@ import Array "mo:core/Array";
 import Map "mo:core/Map";
 import Text "mo:core/Text";
 import Iter "mo:core/Iter";
+import Nat "mo:core/Nat";
 import Runtime "mo:core/Runtime";
+import Order "mo:core/Order";
+import Principal "mo:core/Principal";
+
+import AccessControl "authorization/access-control";
+import MixinAuthorization "authorization/MixinAuthorization";
+
 
 actor {
   type JobId = Nat;
-  type Category = { #latestJobs; #admitCards; #results };
-  type DateRange = { startDate : Text; endDate : Text };
+
+  type Category = {
+    #latestJobs;
+    #admitCards;
+    #results;
+    #closedPosts;
+  };
+
+  type ImportantDates = {
+    applicationBegin : ?Text;
+    lastDate : ?Text;
+    feePaymentLastDate : ?Text;
+    examDate : ?Text;
+  };
+
+  type FeeCategory = {
+    name : Text;
+    amount : Text;
+  };
+
+  type AgeLimit = {
+    minAge : ?Nat;
+    maxAge : ?Nat;
+    relaxation : Bool;
+    notes : ?Text;
+  };
+
+  type VacancyDetail = {
+    postName : Text;
+    totalPosts : Nat;
+    eligibility : Text;
+  };
+
+  type Block = {
+    #title : {
+      text : Text;
+      isMainHeading : Bool;
+    };
+    #paragraph : { text : Text };
+    #table : {
+      title : ?Text;
+      rows : [[Text]];
+    };
+    #link : {
+      linkText : Text;
+      url : Text;
+    };
+    #image : {
+      url : Text;
+      altText : ?Text;
+    };
+  };
 
   type JobPost = {
     id : JobId;
     name : Text;
-    importantDates : DateRange;
-    fees : Text;
+    posterImage : ?Text;
+    importantDates : ImportantDates;
+    fees : [FeeCategory];
+    ageLimit : ?AgeLimit;
+    vacancies : [VacancyDetail];
+    selectionProcess : ?Text;
+    syllabusUrl : ?Text;
+    admitCardUrl : ?Text;
     category : Category;
-    syllabusUrl : Text;
     links : {
-      applyOnline : Text;
-      notification : Text;
-      officialWebsite : Text;
+      applyOnline : ?Text;
+      notification : ?Text;
+      officialWebsite : ?Text;
     };
+    blocks : [Block];
+  };
+
+  public type UserProfile = {
+    name : Text;
   };
 
   let jobPosts = Map.empty<JobId, JobPost>();
   var nextId = 0;
+  let accessControlState = AccessControl.initState();
+  include MixinAuthorization(accessControlState);
+  let userProfiles = Map.empty<Principal, UserProfile>();
 
+  func compareJobPostsNewestFirst(a : JobPost, b : JobPost) : Order.Order {
+    Nat.compare(b.id, a.id);
+  };
+
+  // User Profile Management Functions
+  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can access profiles");
+    };
+    userProfiles.get(caller);
+  };
+
+  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
+    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Can only view your own profile");
+    };
+    userProfiles.get(user);
+  };
+
+  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can save profiles");
+    };
+    userProfiles.add(caller, profile);
+  };
+
+  // Admin Check Function
+  public query ({ caller }) func isAdmin() : async Bool {
+    AccessControl.isAdmin(accessControlState, caller);
+  };
+
+  // Job Post CRUD Functions
   public shared ({ caller }) func addJobPost(
     name : Text,
-    dates : DateRange,
-    fees : Text,
+    posterImage : ?Text,
+    dates : ImportantDates,
+    fees : [FeeCategory],
+    ageLimit : ?AgeLimit,
+    vacancies : [VacancyDetail],
+    selectionProcess : ?Text,
+    syllabusUrl : ?Text,
+    admitCardUrl : ?Text,
     category : Category,
-    syllabusUrl : Text,
     links : {
-      applyOnline : Text;
-      notification : Text;
-      officialWebsite : Text;
+      applyOnline : ?Text;
+      notification : ?Text;
+      officialWebsite : ?Text;
     },
+    blocks : [Block],
   ) : async JobId {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can add job posts");
+    };
+
     let id = nextId;
     nextId += 1;
 
     let jobPost : JobPost = {
       id;
       name;
+      posterImage;
       importantDates = dates;
       fees;
-      category;
+      ageLimit;
+      vacancies;
+      selectionProcess;
       syllabusUrl;
+      admitCardUrl;
+      category;
       links;
+      blocks;
     };
 
     jobPosts.add(id, jobPost);
@@ -56,7 +174,7 @@ actor {
   };
 
   public query ({ caller }) func getJobPostsByCategory(category : ?Category) : async [JobPost] {
-    jobPosts.values().toArray().filter(
+    let filteredPosts = jobPosts.values().toArray().filter(
       func(post) {
         switch (category) {
           case (null) { true };
@@ -64,6 +182,21 @@ actor {
         };
       }
     );
+    filteredPosts.sort(compareJobPostsNewestFirst);
+  };
+
+  public query ({ caller }) func getSyllabusRepository() : async [JobPost] {
+    let filteredPosts = jobPosts.values().toArray().filter(
+      func(post) { post.syllabusUrl != null }
+    );
+    filteredPosts.sort(compareJobPostsNewestFirst);
+  };
+
+  public query ({ caller }) func getAdmitCardPosts() : async [JobPost] {
+    let filteredPosts = jobPosts.values().toArray().filter(
+      func(post) { post.admitCardUrl != null }
+    );
+    filteredPosts.sort(compareJobPostsNewestFirst);
   };
 
   public query ({ caller }) func getJobPost(id : JobId) : async JobPost {
@@ -71,5 +204,62 @@ actor {
       case (null) { Runtime.trap("Job post not found") };
       case (?post) { post };
     };
+  };
+
+  public shared ({ caller }) func updateJobPost(
+    id : JobId,
+    name : Text,
+    posterImage : ?Text,
+    dates : ImportantDates,
+    fees : [FeeCategory],
+    ageLimit : ?AgeLimit,
+    vacancies : [VacancyDetail],
+    selectionProcess : ?Text,
+    syllabusUrl : ?Text,
+    admitCardUrl : ?Text,
+    category : Category,
+    links : {
+      applyOnline : ?Text;
+      notification : ?Text;
+      officialWebsite : ?Text;
+    },
+    blocks : [Block],
+  ) : async () {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can update job posts");
+    };
+
+    switch (jobPosts.get(id)) {
+      case (null) { Runtime.trap("Job post not found") };
+      case (?_) {
+        let updatedPost : JobPost = {
+          id;
+          name;
+          posterImage;
+          importantDates = dates;
+          fees;
+          ageLimit;
+          vacancies;
+          selectionProcess;
+          syllabusUrl;
+          admitCardUrl;
+          category;
+          links;
+          blocks;
+        };
+        jobPosts.add(id, updatedPost);
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteJobPost(id : JobId) : async () {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can delete job posts");
+    };
+
+    if (not jobPosts.containsKey(id)) {
+      Runtime.trap("Job post not found");
+    };
+    jobPosts.remove(id);
   };
 };

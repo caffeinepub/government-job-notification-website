@@ -2,22 +2,40 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-prominent-site-wide-scrolling-notice-ticker-marquee-style-at-the-top-of-the-website-in-the-shared-header-layout-that-continuously-scrolls-left-to-right-or-right-to-left-and-displays-an-english-daily-update-message-indicating-users-do-not-need-to-update-and-should-visit-daily-for-new-updates-e-g-no-need-to-update-visit-here-daily-for-new-updates-the-ticker-must-be-visible-on-both-the-homepage-and-post-detail-pages-and-remain-readable-and-mobile-friendly",
-      "featureTitle": "Add a prominent, site-wide scrolling notice/ticker (marquee-style) at the top of the website (in the shared header layout) that continuously scrolls left-to-right or right-to-left and displays an English daily-update message indicating users do not need to update and should visit daily for new updates (e.g., \"No need to update — visit here daily for new updates.\"). The ticker must be visible on both the homepage and post detail pages and remain readable and mobile-friendly.",
+      "featureId": "feature-update-the-client-admin-login-to-use-the-new-strong-password-exactly-as-provided-ni-ra-j-gurja-r-replacing-the-current-simple-password",
+      "featureTitle": "Update the Client Admin login to use the new strong password exactly as provided: \"@ni#ra&j*gurja:r\" (replacing the current simple password).",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/SiteNoticeTicker.tsx",
-        "frontend/tailwind.config.js"
+        "frontend/src/hooks/useClientAdminAuth.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-6"
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-client-admin-password-authentication-remains-strictly-case-sensitive-so-that-uppercase-lowercase-letters-must-match-exactly-to-unlock-the-admin-panel-dashboard",
+      "featureTitle": "Ensure Client Admin password authentication remains strictly case-sensitive so that uppercase/lowercase letters must match exactly to unlock the admin panel/dashboard.",
+      "files": [
+        "frontend/src/hooks/useClientAdminAuth.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
       ],
       "confidence": "high"
     }

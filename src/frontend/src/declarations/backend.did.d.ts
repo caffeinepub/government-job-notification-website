@@ -10,42 +10,116 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface AgeLimit {
+  'minAge' : [] | [bigint],
+  'notes' : [] | [string],
+  'maxAge' : [] | [bigint],
+  'relaxation' : boolean,
+}
+export type Block = {
+    'table' : { 'title' : [] | [string], 'rows' : Array<Array<string>> }
+  } |
+  { 'title' : { 'isMainHeading' : boolean, 'text' : string } } |
+  { 'link' : { 'url' : string, 'linkText' : string } } |
+  { 'image' : { 'url' : string, 'altText' : [] | [string] } } |
+  { 'paragraph' : { 'text' : string } };
 export type Category = { 'latestJobs' : null } |
   { 'results' : null } |
+  { 'closedPosts' : null } |
   { 'admitCards' : null };
-export interface DateRange { 'endDate' : string, 'startDate' : string }
+export interface FeeCategory { 'name' : string, 'amount' : string }
+export interface ImportantDates {
+  'applicationBegin' : [] | [string],
+  'feePaymentLastDate' : [] | [string],
+  'examDate' : [] | [string],
+  'lastDate' : [] | [string],
+}
 export type JobId = bigint;
 export interface JobPost {
   'id' : JobId,
-  'fees' : string,
+  'admitCardUrl' : [] | [string],
+  'fees' : Array<FeeCategory>,
   'name' : string,
+  'vacancies' : Array<VacancyDetail>,
+  'selectionProcess' : [] | [string],
   'links' : {
-    'applyOnline' : string,
-    'notification' : string,
-    'officialWebsite' : string,
+    'applyOnline' : [] | [string],
+    'notification' : [] | [string],
+    'officialWebsite' : [] | [string],
   },
-  'syllabusUrl' : string,
+  'syllabusUrl' : [] | [string],
+  'blocks' : Array<Block>,
   'category' : Category,
-  'importantDates' : DateRange,
+  'importantDates' : ImportantDates,
+  'posterImage' : [] | [string],
+  'ageLimit' : [] | [AgeLimit],
+}
+export interface UserProfile { 'name' : string }
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
+export interface VacancyDetail {
+  'postName' : string,
+  'eligibility' : string,
+  'totalPosts' : bigint,
 }
 export interface _SERVICE {
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addJobPost' : ActorMethod<
     [
       string,
-      DateRange,
-      string,
+      [] | [string],
+      ImportantDates,
+      Array<FeeCategory>,
+      [] | [AgeLimit],
+      Array<VacancyDetail>,
+      [] | [string],
+      [] | [string],
+      [] | [string],
       Category,
-      string,
       {
-        'applyOnline' : string,
-        'notification' : string,
-        'officialWebsite' : string,
+        'applyOnline' : [] | [string],
+        'notification' : [] | [string],
+        'officialWebsite' : [] | [string],
       },
+      Array<Block>,
     ],
     JobId
   >,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'deleteJobPost' : ActorMethod<[JobId], undefined>,
+  'getAdmitCardPosts' : ActorMethod<[], Array<JobPost>>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getJobPost' : ActorMethod<[JobId], JobPost>,
   'getJobPostsByCategory' : ActorMethod<[[] | [Category]], Array<JobPost>>,
+  'getSyllabusRepository' : ActorMethod<[], Array<JobPost>>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'isAdmin' : ActorMethod<[], boolean>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'updateJobPost' : ActorMethod<
+    [
+      JobId,
+      string,
+      [] | [string],
+      ImportantDates,
+      Array<FeeCategory>,
+      [] | [AgeLimit],
+      Array<VacancyDetail>,
+      [] | [string],
+      [] | [string],
+      [] | [string],
+      Category,
+      {
+        'applyOnline' : [] | [string],
+        'notification' : [] | [string],
+        'officialWebsite' : [] | [string],
+      },
+      Array<Block>,
+    ],
+    undefined
+  >,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

@@ -7,35 +7,112 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export type JobId = bigint;
-export interface DateRange {
-    endDate: string;
-    startDate: string;
+export interface VacancyDetail {
+    postName: string;
+    eligibility: string;
+    totalPosts: bigint;
 }
 export interface JobPost {
     id: JobId;
-    fees: string;
+    admitCardUrl?: string;
+    fees: Array<FeeCategory>;
     name: string;
+    vacancies: Array<VacancyDetail>;
+    selectionProcess?: string;
     links: {
-        applyOnline: string;
-        notification: string;
-        officialWebsite: string;
+        applyOnline?: string;
+        notification?: string;
+        officialWebsite?: string;
     };
-    syllabusUrl: string;
+    syllabusUrl?: string;
+    blocks: Array<Block>;
     category: Category;
-    importantDates: DateRange;
+    importantDates: ImportantDates;
+    posterImage?: string;
+    ageLimit?: AgeLimit;
+}
+export type JobId = bigint;
+export interface AgeLimit {
+    minAge?: bigint;
+    notes?: string;
+    maxAge?: bigint;
+    relaxation: boolean;
+}
+export interface ImportantDates {
+    applicationBegin?: string;
+    feePaymentLastDate?: string;
+    examDate?: string;
+    lastDate?: string;
+}
+export interface FeeCategory {
+    name: string;
+    amount: string;
+}
+export type Block = {
+    __kind__: "table";
+    table: {
+        title?: string;
+        rows: Array<Array<string>>;
+    };
+} | {
+    __kind__: "title";
+    title: {
+        isMainHeading: boolean;
+        text: string;
+    };
+} | {
+    __kind__: "link";
+    link: {
+        url: string;
+        linkText: string;
+    };
+} | {
+    __kind__: "image";
+    image: {
+        url: string;
+        altText?: string;
+    };
+} | {
+    __kind__: "paragraph";
+    paragraph: {
+        text: string;
+    };
+};
+export interface UserProfile {
+    name: string;
 }
 export enum Category {
     latestJobs = "latestJobs",
     results = "results",
+    closedPosts = "closedPosts",
     admitCards = "admitCards"
 }
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
+}
 export interface backendInterface {
-    addJobPost(name: string, dates: DateRange, fees: string, category: Category, syllabusUrl: string, links: {
-        applyOnline: string;
-        notification: string;
-        officialWebsite: string;
-    }): Promise<JobId>;
+    addJobPost(name: string, posterImage: string | null, dates: ImportantDates, fees: Array<FeeCategory>, ageLimit: AgeLimit | null, vacancies: Array<VacancyDetail>, selectionProcess: string | null, syllabusUrl: string | null, admitCardUrl: string | null, category: Category, links: {
+        applyOnline?: string;
+        notification?: string;
+        officialWebsite?: string;
+    }, blocks: Array<Block>): Promise<JobId>;
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    deleteJobPost(id: JobId): Promise<void>;
+    getAdmitCardPosts(): Promise<Array<JobPost>>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
+    getCallerUserRole(): Promise<UserRole>;
     getJobPost(id: JobId): Promise<JobPost>;
     getJobPostsByCategory(category: Category | null): Promise<Array<JobPost>>;
+    getSyllabusRepository(): Promise<Array<JobPost>>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
+    isAdmin(): Promise<boolean>;
+    isCallerAdmin(): Promise<boolean>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    updateJobPost(id: JobId, name: string, posterImage: string | null, dates: ImportantDates, fees: Array<FeeCategory>, ageLimit: AgeLimit | null, vacancies: Array<VacancyDetail>, selectionProcess: string | null, syllabusUrl: string | null, admitCardUrl: string | null, category: Category, links: {
+        applyOnline?: string;
+        notification?: string;
+        officialWebsite?: string;
+    }, blocks: Array<Block>): Promise<void>;
 }

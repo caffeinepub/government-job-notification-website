@@ -1,38 +1,68 @@
 {
   "kind": "build_request",
-  "title": "Add a site-wide scrolling notice/ticker message in the header",
-  "priority": "normal",
+  "title": "Update client admin login password and ensure special-character, case-sensitive validation",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-6",
-      "text": "Add a prominent, site-wide scrolling notice/ticker (marquee-style) at the top of the website (in the shared header layout) that continuously scrolls left-to-right or right-to-left and displays an English daily-update message indicating users do not need to update and should visit daily for new updates (e.g., \"No need to update — visit here daily for new updates.\"). The ticker must be visible on both the homepage and post detail pages and remain readable and mobile-friendly.",
+      "id": "REQ-1",
+      "text": "Update the Client Admin login to use the new strong password exactly as provided: \"@ni#ra&j*gurja:r\" (replacing the current simple password).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages-4"
+          "msg-1"
         ],
         "quotes": [
-          "ऊपर एक पोस्ट चलना चाहिए जिस पर लिखा होना चाहिए नहीं पड़ती अपडेट करने के लिए यहां पर रोज आता है"
+          "Replace the current simple password with this specific new strong password: @ni#ra&j*gurja:r"
         ]
       },
       "acceptanceCriteria": [
-        "A scrolling ticker/notice bar appears within the shared header area so it is visible on all routes (e.g., '/' and '/post/:postId').",
-        "The ticker text is in English and conveys: no need to update; visit daily for updates.",
-        "The ticker continuously animates (marquee-like) and is readable on mobile (no clipped text; adequate contrast).",
-        "The ticker does not break the existing sticky header behavior and does not cause layout shift that hides page content behind the header."
+        "In frontend/src/hooks/useClientAdminAuth.ts, the hardcoded admin password is replaced with exactly \"@ni#ra&j*gurja:r\".",
+        "Entering \"@ni#ra&j*gurja:r\" in the Client Admin login successfully unlocks and displays the admin panel/dashboard UI.",
+        "Entering any other password does not unlock the admin panel/dashboard UI and shows the existing error message."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Ensure the Client Admin login password input accepts special characters (including @, #, &, *, and :) and submits them unchanged for authentication comparison.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Ensure the login input field accepts special characters like @, #, &, *, and : without any errors."
+        ]
+      },
+      "acceptanceCriteria": [
+        "The password input field in frontend/src/pages/ClientAdminPage.tsx allows typing and pasting special characters (@, #, &, *, :) without validation errors or character stripping.",
+        "The value passed into useClientAdminAuth.login() matches exactly what the user typed (no trimming, sanitizing, or normalization that would remove/alter these characters)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Ensure Client Admin password authentication remains strictly case-sensitive so that uppercase/lowercase letters must match exactly to unlock the admin panel/dashboard.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Make sure the password logic is case-sensitive (capital and small letters must match exactly)."
+        ]
+      },
+      "acceptanceCriteria": [
+        "\"@ni#ra&j*gurja:r\" unlocks the admin panel/dashboard, while any variant with different letter casing does not unlock it.",
+        "Authentication uses an exact string match (no case folding, no locale-based normalization)."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor (all logic in backend/main.mo).",
-    "Do not edit files under frontend/src/components/ui (compose them instead).",
-    "Do not edit frontend immutable hook/entry files (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx).",
-    "Use English for any user-facing text added by this change."
+    "Do not edit any files under frontend/src/components/ui or other immutable paths listed in SYSTEM_CONTEXT.",
+    "Use English for any user-facing text (e.g., validation/error messages)."
   ],
   "nonGoals": [
-    "Adding new backend data fields or changing the existing JobPost schema.",
-    "Adding an admin panel/CMS to update ticker text.",
-    "Adding third-party integrations (ads, analytics, external auth)."
+    "Do not add or change Internet Identity / backend admin authorization (backend isAdmin) flows for this request.",
+    "Do not redesign the admin panel UI beyond what is required to accept and validate the new password."
   ],
   "imageRequirements": {
     "required": [],

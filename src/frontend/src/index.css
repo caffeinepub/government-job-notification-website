@@ -86,11 +86,172 @@
         min-height: 44px;
         @apply inline-flex items-center;
     }
+
+    /* Enhanced mobile tap targets for download actions */
+    .download-action {
+        min-height: 48px;
+        @apply px-6 py-3;
+    }
+
+    /* Table responsiveness */
+    table {
+        @apply w-full;
+    }
+
+    @media (max-width: 640px) {
+        /* Improve table readability on mobile */
+        td, th {
+            @apply text-sm;
+        }
+    }
 }
 
 @layer utilities {
     /* Text utilities for better readability */
     .text-balance {
         text-wrap: balance;
+    }
+
+    /* Mobile-optimized download button */
+    .mobile-download-btn {
+        @apply min-h-[48px] px-5 py-3 text-base font-semibold;
+    }
+
+    /* Safe-area aware positioning for fixed UI controls */
+    .photo-upload-fab {
+        bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .photo-upload-panel {
+        bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    }
+}
+
+/* Vertical Ticker Animation */
+.ticker-content {
+    animation: ticker-scroll 30s linear infinite;
+}
+
+.ticker-content.ticker-paused {
+    animation-play-state: paused;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    .ticker-content {
+        animation: none;
+    }
+}
+
+/* Motivational Banner Styles */
+.motivational-banner {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+    padding: 3rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.motivational-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(255, 69, 0, 0.1) 0%, transparent 70%);
+    animation: pulse-bg 4s ease-in-out infinite;
+}
+
+.motivational-banner-content {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    width: 100%;
+}
+
+.motivational-banner-text {
+    font-size: clamp(1.75rem, 5vw, 4rem);
+    font-weight: 900;
+    text-align: center;
+    letter-spacing: 0.05em;
+    background: linear-gradient(90deg, 
+        #ff4500 0%, 
+        #ff6347 20%, 
+        #ffa500 40%, 
+        #ffd700 60%, 
+        #ffa500 80%, 
+        #ff4500 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-flow 4s linear infinite, neon-pulse 2s ease-in-out infinite;
+    text-shadow: 
+        0 0 20px rgba(255, 69, 0, 0.5),
+        0 0 40px rgba(255, 69, 0, 0.3),
+        0 0 60px rgba(255, 69, 0, 0.2);
+    filter: drop-shadow(0 0 10px rgba(255, 165, 0, 0.6));
+}
+
+@keyframes gradient-flow {
+    0% {
+        background-position: 0% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+@keyframes neon-pulse {
+    0%, 100% {
+        opacity: 1;
+        filter: drop-shadow(0 0 10px rgba(255, 165, 0, 0.6)) 
+                drop-shadow(0 0 20px rgba(255, 69, 0, 0.4));
+    }
+    50% {
+        opacity: 0.85;
+        filter: drop-shadow(0 0 20px rgba(255, 165, 0, 0.8)) 
+                drop-shadow(0 0 40px rgba(255, 69, 0, 0.6));
+    }
+}
+
+@keyframes pulse-bg {
+    0%, 100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .motivational-banner-text {
+        animation: none;
+        background: linear-gradient(90deg, #ff4500 0%, #ffa500 50%, #ffd700 100%);
+        background-size: 100% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .motivational-banner::before {
+        animation: none;
+        opacity: 0.4;
+    }
+}
+
+/* Mobile optimization */
+@media (max-width: 640px) {
+    .motivational-banner {
+        padding: 2rem 1rem;
+    }
+    
+    .motivational-banner-text {
+        letter-spacing: 0.02em;
     }
 }

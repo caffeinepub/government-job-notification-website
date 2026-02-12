@@ -1,7 +1,13 @@
 import { useJobPosts } from '../hooks/useJobPosts';
+import { useHomeCards } from '../hooks/useHomeCards';
 import { Category } from '../backend';
 import { Link } from '@tanstack/react-router';
 import { Calendar, IndianRupee, FileText, Award, ClipboardList } from 'lucide-react';
+import { QuickOfficialLinks } from '../components/home/QuickOfficialLinks';
+import { StudyCornerSection } from '../components/home/StudyCornerSection';
+import { SimpleJobsSection } from '../components/home/SimpleJobsSection';
+import { VerticalTickerList } from '../components/home/VerticalTickerList';
+import { PreparationResourcesSection } from '../components/home/PreparationResourcesSection';
 
 function CategorySection({ 
   title, 
@@ -13,6 +19,28 @@ function CategorySection({
   icon: React.ElementType;
 }) {
   const { data: posts, isLoading, error } = useJobPosts(category);
+  const { items: homeCardItems } = useHomeCards();
+
+  // Filter home card items by category
+  const categoryKey = category === Category.latestJobs ? 'latestJobs' 
+    : category === Category.admitCards ? 'admitCards' 
+    : 'results';
+  const fallbackItems = homeCardItems.filter(item => item.category === categoryKey);
+
+  // Combine backend posts and fallback items for rendering
+  const allItems = posts && posts.length > 0 
+    ? posts.map((post, index) => ({
+        type: 'backend' as const,
+        id: post.id.toString(),
+        post,
+        index,
+      }))
+    : fallbackItems.map((item, index) => ({
+        type: 'fallback' as const,
+        id: item.id,
+        item,
+        index,
+      }));
 
   return (
     <div className="bg-card border border-border rounded-sm">
@@ -41,41 +69,96 @@ function CategorySection({
           </div>
         )}
         
-        {!isLoading && !error && posts && posts.length === 0 && (
+        {!isLoading && !error && allItems.length === 0 && (
           <div className="p-4 text-sm text-muted-foreground text-center">
             No posts available at the moment.
           </div>
         )}
         
-        {!isLoading && !error && posts && posts.length > 0 && (
-          <>
-            {posts.map((post) => (
-              <Link
-                key={post.id.toString()}
-                to="/post/$postId"
-                params={{ postId: post.id.toString() }}
-                className="block p-4 hover:bg-accent/50 transition-colors"
-              >
-                <h3 className="font-semibold text-foreground mb-2 leading-tight">
-                  {post.name}
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    <span>Start: {post.importantDates.startDate}</span>
+        {!isLoading && !error && allItems.length > 0 && (
+          <VerticalTickerList speed={30}>
+            {allItems.map((item) => {
+              const isNew = item.index < 3;
+              
+              if (item.type === 'backend') {
+                const { post } = item;
+                const feesDisplay = post.fees.length > 0 
+                  ? post.fees.map(f => `${f.name}: ${f.amount}`).join(', ')
+                  : 'See details';
+
+                return (
+                  <Link
+                    key={item.id}
+                    to="/post/$postId"
+                    params={{ postId: post.id.toString() }}
+                    className="block p-4 hover:bg-accent/50 transition-colors"
+                  >
+                    <div className="flex items-start gap-2">
+                      {isNew && (
+                        <img 
+                          src="/assets/generated/new-badge.dim_48x24.png" 
+                          alt="NEW" 
+                          className="w-12 h-6 flex-shrink-0 animate-blink"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-foreground mb-2 leading-tight">
+                          {post.name}
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-muted-foreground">
+                          {post.importantDates.applicationBegin && (
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              <span>Start: {post.importantDates.applicationBegin}</span>
+                            </div>
+                          )}
+                          {post.importantDates.lastDate && (
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              <span>Last: {post.importantDates.lastDate}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1">
+                            <IndianRupee className="w-3 h-3" />
+                            <span className="truncate" title={feesDisplay}>Fee: {feesDisplay}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              } else {
+                const { item: cardItem } = item;
+                return (
+                  <div
+                    key={item.id}
+                    className="block p-4 hover:bg-accent/50 transition-colors"
+                  >
+                    <div className="flex items-start gap-2">
+                      {isNew && (
+                        <img 
+                          src="/assets/generated/new-badge.dim_48x24.png" 
+                          alt="NEW" 
+                          className="w-12 h-6 flex-shrink-0 animate-blink"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-foreground mb-2 leading-tight">
+                          {cardItem.title}
+                        </h3>
+                        <div className="text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            <span>Last Date: {cardItem.lastDate}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    <span>Last: {post.importantDates.endDate}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <IndianRupee className="w-3 h-3" />
-                    <span>Fee: {post.fees}</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </>
+                );
+              }
+            })}
+          </VerticalTickerList>
         )}
       </div>
     </div>
@@ -85,22 +168,44 @@ function CategorySection({
 export default function HomePage() {
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <CategorySection 
-          title="Latest Jobs" 
-          category={Category.latestJobs}
-          icon={ClipboardList}
-        />
-        <CategorySection 
-          title="Admit Cards" 
-          category={Category.admitCards}
-          icon={FileText}
-        />
-        <CategorySection 
-          title="Results" 
-          category={Category.results}
-          icon={Award}
-        />
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Main content - Job categories */}
+        <div className="lg:col-span-3 space-y-6">
+          {/* Simple Jobs Section */}
+          <SimpleJobsSection />
+          
+          {/* Backend Job Categories */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <CategorySection 
+              title="Latest Jobs" 
+              category={Category.latestJobs}
+              icon={ClipboardList}
+            />
+            <CategorySection 
+              title="Admit Cards" 
+              category={Category.admitCards}
+              icon={FileText}
+            />
+            <CategorySection 
+              title="Results" 
+              category={Category.results}
+              icon={Award}
+            />
+          </div>
+        </div>
+
+        {/* Sidebar - Quick Official Links */}
+        <div className="lg:col-span-1">
+          <QuickOfficialLinks />
+        </div>
+      </div>
+
+      {/* Preparation & Resources Section */}
+      <PreparationResourcesSection />
+
+      {/* Study Corner Section */}
+      <div className="mt-6">
+        <StudyCornerSection />
       </div>
     </div>
   );

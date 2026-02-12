@@ -6,7 +6,7 @@ export function SiteNoticeTicker() {
   return (
     <div className="bg-accent text-accent-foreground overflow-hidden border-b border-border">
       <div className="flex items-center gap-2 py-2 px-4">
-        <Bell className="h-4 w-4 flex-shrink-0 animate-pulse" />
+        <Bell className="h-4 w-4 shrink-0 animate-pulse" />
         <div className="flex-1 overflow-hidden">
           <div className="animate-marquee whitespace-nowrap inline-block">
             <span className="text-sm font-medium">{noticeText}</span>

@@ -8,104 +8,269 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
-export const DateRange = IDL.Record({
-  'endDate' : IDL.Text,
-  'startDate' : IDL.Text,
+export const ImportantDates = IDL.Record({
+  'applicationBegin' : IDL.Opt(IDL.Text),
+  'feePaymentLastDate' : IDL.Opt(IDL.Text),
+  'examDate' : IDL.Opt(IDL.Text),
+  'lastDate' : IDL.Opt(IDL.Text),
+});
+export const FeeCategory = IDL.Record({
+  'name' : IDL.Text,
+  'amount' : IDL.Text,
+});
+export const AgeLimit = IDL.Record({
+  'minAge' : IDL.Opt(IDL.Nat),
+  'notes' : IDL.Opt(IDL.Text),
+  'maxAge' : IDL.Opt(IDL.Nat),
+  'relaxation' : IDL.Bool,
+});
+export const VacancyDetail = IDL.Record({
+  'postName' : IDL.Text,
+  'eligibility' : IDL.Text,
+  'totalPosts' : IDL.Nat,
 });
 export const Category = IDL.Variant({
   'latestJobs' : IDL.Null,
   'results' : IDL.Null,
+  'closedPosts' : IDL.Null,
   'admitCards' : IDL.Null,
 });
+export const Block = IDL.Variant({
+  'table' : IDL.Record({
+    'title' : IDL.Opt(IDL.Text),
+    'rows' : IDL.Vec(IDL.Vec(IDL.Text)),
+  }),
+  'title' : IDL.Record({ 'isMainHeading' : IDL.Bool, 'text' : IDL.Text }),
+  'link' : IDL.Record({ 'url' : IDL.Text, 'linkText' : IDL.Text }),
+  'image' : IDL.Record({ 'url' : IDL.Text, 'altText' : IDL.Opt(IDL.Text) }),
+  'paragraph' : IDL.Record({ 'text' : IDL.Text }),
+});
 export const JobId = IDL.Nat;
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
+});
 export const JobPost = IDL.Record({
   'id' : JobId,
-  'fees' : IDL.Text,
+  'admitCardUrl' : IDL.Opt(IDL.Text),
+  'fees' : IDL.Vec(FeeCategory),
   'name' : IDL.Text,
+  'vacancies' : IDL.Vec(VacancyDetail),
+  'selectionProcess' : IDL.Opt(IDL.Text),
   'links' : IDL.Record({
-    'applyOnline' : IDL.Text,
-    'notification' : IDL.Text,
-    'officialWebsite' : IDL.Text,
+    'applyOnline' : IDL.Opt(IDL.Text),
+    'notification' : IDL.Opt(IDL.Text),
+    'officialWebsite' : IDL.Opt(IDL.Text),
   }),
-  'syllabusUrl' : IDL.Text,
+  'syllabusUrl' : IDL.Opt(IDL.Text),
+  'blocks' : IDL.Vec(Block),
   'category' : Category,
-  'importantDates' : DateRange,
+  'importantDates' : ImportantDates,
+  'posterImage' : IDL.Opt(IDL.Text),
+  'ageLimit' : IDL.Opt(AgeLimit),
 });
+export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 
 export const idlService = IDL.Service({
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'addJobPost' : IDL.Func(
       [
         IDL.Text,
-        DateRange,
-        IDL.Text,
+        IDL.Opt(IDL.Text),
+        ImportantDates,
+        IDL.Vec(FeeCategory),
+        IDL.Opt(AgeLimit),
+        IDL.Vec(VacancyDetail),
+        IDL.Opt(IDL.Text),
+        IDL.Opt(IDL.Text),
+        IDL.Opt(IDL.Text),
         Category,
-        IDL.Text,
         IDL.Record({
-          'applyOnline' : IDL.Text,
-          'notification' : IDL.Text,
-          'officialWebsite' : IDL.Text,
+          'applyOnline' : IDL.Opt(IDL.Text),
+          'notification' : IDL.Opt(IDL.Text),
+          'officialWebsite' : IDL.Opt(IDL.Text),
         }),
+        IDL.Vec(Block),
       ],
       [JobId],
       [],
     ),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'deleteJobPost' : IDL.Func([JobId], [], []),
+  'getAdmitCardPosts' : IDL.Func([], [IDL.Vec(JobPost)], ['query']),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getJobPost' : IDL.Func([JobId], [JobPost], ['query']),
   'getJobPostsByCategory' : IDL.Func(
       [IDL.Opt(Category)],
       [IDL.Vec(JobPost)],
       ['query'],
     ),
+  'getSyllabusRepository' : IDL.Func([], [IDL.Vec(JobPost)], ['query']),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
+  'isAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'updateJobPost' : IDL.Func(
+      [
+        JobId,
+        IDL.Text,
+        IDL.Opt(IDL.Text),
+        ImportantDates,
+        IDL.Vec(FeeCategory),
+        IDL.Opt(AgeLimit),
+        IDL.Vec(VacancyDetail),
+        IDL.Opt(IDL.Text),
+        IDL.Opt(IDL.Text),
+        IDL.Opt(IDL.Text),
+        Category,
+        IDL.Record({
+          'applyOnline' : IDL.Opt(IDL.Text),
+          'notification' : IDL.Opt(IDL.Text),
+          'officialWebsite' : IDL.Opt(IDL.Text),
+        }),
+        IDL.Vec(Block),
+      ],
+      [],
+      [],
+    ),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
-  const DateRange = IDL.Record({
-    'endDate' : IDL.Text,
-    'startDate' : IDL.Text,
+  const ImportantDates = IDL.Record({
+    'applicationBegin' : IDL.Opt(IDL.Text),
+    'feePaymentLastDate' : IDL.Opt(IDL.Text),
+    'examDate' : IDL.Opt(IDL.Text),
+    'lastDate' : IDL.Opt(IDL.Text),
+  });
+  const FeeCategory = IDL.Record({ 'name' : IDL.Text, 'amount' : IDL.Text });
+  const AgeLimit = IDL.Record({
+    'minAge' : IDL.Opt(IDL.Nat),
+    'notes' : IDL.Opt(IDL.Text),
+    'maxAge' : IDL.Opt(IDL.Nat),
+    'relaxation' : IDL.Bool,
+  });
+  const VacancyDetail = IDL.Record({
+    'postName' : IDL.Text,
+    'eligibility' : IDL.Text,
+    'totalPosts' : IDL.Nat,
   });
   const Category = IDL.Variant({
     'latestJobs' : IDL.Null,
     'results' : IDL.Null,
+    'closedPosts' : IDL.Null,
     'admitCards' : IDL.Null,
   });
+  const Block = IDL.Variant({
+    'table' : IDL.Record({
+      'title' : IDL.Opt(IDL.Text),
+      'rows' : IDL.Vec(IDL.Vec(IDL.Text)),
+    }),
+    'title' : IDL.Record({ 'isMainHeading' : IDL.Bool, 'text' : IDL.Text }),
+    'link' : IDL.Record({ 'url' : IDL.Text, 'linkText' : IDL.Text }),
+    'image' : IDL.Record({ 'url' : IDL.Text, 'altText' : IDL.Opt(IDL.Text) }),
+    'paragraph' : IDL.Record({ 'text' : IDL.Text }),
+  });
   const JobId = IDL.Nat;
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
+  });
   const JobPost = IDL.Record({
     'id' : JobId,
-    'fees' : IDL.Text,
+    'admitCardUrl' : IDL.Opt(IDL.Text),
+    'fees' : IDL.Vec(FeeCategory),
     'name' : IDL.Text,
+    'vacancies' : IDL.Vec(VacancyDetail),
+    'selectionProcess' : IDL.Opt(IDL.Text),
     'links' : IDL.Record({
-      'applyOnline' : IDL.Text,
-      'notification' : IDL.Text,
-      'officialWebsite' : IDL.Text,
+      'applyOnline' : IDL.Opt(IDL.Text),
+      'notification' : IDL.Opt(IDL.Text),
+      'officialWebsite' : IDL.Opt(IDL.Text),
     }),
-    'syllabusUrl' : IDL.Text,
+    'syllabusUrl' : IDL.Opt(IDL.Text),
+    'blocks' : IDL.Vec(Block),
     'category' : Category,
-    'importantDates' : DateRange,
+    'importantDates' : ImportantDates,
+    'posterImage' : IDL.Opt(IDL.Text),
+    'ageLimit' : IDL.Opt(AgeLimit),
   });
+  const UserProfile = IDL.Record({ 'name' : IDL.Text });
   
   return IDL.Service({
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'addJobPost' : IDL.Func(
         [
           IDL.Text,
-          DateRange,
-          IDL.Text,
+          IDL.Opt(IDL.Text),
+          ImportantDates,
+          IDL.Vec(FeeCategory),
+          IDL.Opt(AgeLimit),
+          IDL.Vec(VacancyDetail),
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
           Category,
-          IDL.Text,
           IDL.Record({
-            'applyOnline' : IDL.Text,
-            'notification' : IDL.Text,
-            'officialWebsite' : IDL.Text,
+            'applyOnline' : IDL.Opt(IDL.Text),
+            'notification' : IDL.Opt(IDL.Text),
+            'officialWebsite' : IDL.Opt(IDL.Text),
           }),
+          IDL.Vec(Block),
         ],
         [JobId],
         [],
       ),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'deleteJobPost' : IDL.Func([JobId], [], []),
+    'getAdmitCardPosts' : IDL.Func([], [IDL.Vec(JobPost)], ['query']),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getJobPost' : IDL.Func([JobId], [JobPost], ['query']),
     'getJobPostsByCategory' : IDL.Func(
         [IDL.Opt(Category)],
         [IDL.Vec(JobPost)],
         ['query'],
+      ),
+    'getSyllabusRepository' : IDL.Func([], [IDL.Vec(JobPost)], ['query']),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
+    'isAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'updateJobPost' : IDL.Func(
+        [
+          JobId,
+          IDL.Text,
+          IDL.Opt(IDL.Text),
+          ImportantDates,
+          IDL.Vec(FeeCategory),
+          IDL.Opt(AgeLimit),
+          IDL.Vec(VacancyDetail),
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+          Category,
+          IDL.Record({
+            'applyOnline' : IDL.Opt(IDL.Text),
+            'notification' : IDL.Opt(IDL.Text),
+            'officialWebsite' : IDL.Opt(IDL.Text),
+          }),
+          IDL.Vec(Block),
+        ],
+        [],
+        [],
       ),
   });
 };

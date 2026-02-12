@@ -1,41 +1,54 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T23:44:25.927Z",
+  "generatedAt": "2026-02-12T08:32:42.978Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 3,
+    "implemented": 2,
     "items": [
       {
-        "id": "REQ-6",
-        "summary": "Add a prominent, site-wide scrolling notice/ticker (marquee-style) at the top of the website (in the shared header layout) that continuously scrolls left-to-right or right-to-left and displays an English daily-update message indicating users do not need to update and should visit daily for new updates (e.g., \"No need to update — visit here daily for new updates.\"). The ticker must be visible on both the homepage and post detail pages and remain readable and mobile-friendly.",
+        "id": "REQ-1",
+        "summary": "Update the Client Admin login to use the new strong password exactly as provided: \"@ni#ra&j*gurja:r\" (replacing the current simple password).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/SiteNoticeTicker.tsx",
-          "frontend/tailwind.config.js",
-          "frontend/src/App.tsx"
+          "frontend/src/hooks/useClientAdminAuth.ts"
         ],
         "matchedFiles": [
-          "frontend/src/components/SiteNoticeTicker.tsx",
-          "frontend/tailwind.config.js",
-          "frontend/src/App.tsx"
+          "frontend/src/hooks/useClientAdminAuth.ts"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Ensure the Client Admin login password input accepts special characters (including @, #, &, *, and :) and submits them unchanged for authentication comparison.",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/src/pages/ClientAdminPage.tsx"
+        ],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Ensure Client Admin password authentication remains strictly case-sensitive so that uppercase/lowercase letters must match exactly to unlock the admin panel/dashboard.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useClientAdminAuth.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useClientAdminAuth.ts"
         ]
       }
     ]
   },
   "changedFiles": [
     "build-request.json",
-    "build-template/README.md",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/components/SiteNoticeTicker.tsx",
-    "frontend/tailwind.config.js",
+    "frontend/src/hooks/useClientAdminAuth.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
