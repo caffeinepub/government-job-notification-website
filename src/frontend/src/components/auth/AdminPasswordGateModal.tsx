@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { useState, useEffect } from 'react';
 import { useClientAdminAuth } from '../../hooks/useClientAdminAuth';
 import {
   Dialog,
@@ -24,14 +23,11 @@ export default function AdminPasswordGateModal({
   onOpenChange,
 }: AdminPasswordGateModalProps) {
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useClientAdminAuth();
-  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setIsSubmitting(true);
 
     const success = login(password);
@@ -39,9 +35,7 @@ export default function AdminPasswordGateModal({
     if (success) {
       setPassword('');
       onOpenChange(false);
-      navigate({ to: '/admin/dashboard' });
     } else {
-      setError('Access Denied');
       setPassword('');
     }
 
@@ -50,7 +44,6 @@ export default function AdminPasswordGateModal({
 
   const handleClose = () => {
     setPassword('');
-    setError('');
     onOpenChange(false);
   };
 
@@ -60,7 +53,7 @@ export default function AdminPasswordGateModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Lock className="w-5 h-5" />
-            Admin Access Required
+            Enter Admin Password
           </DialogTitle>
           <DialogDescription>
             Enter the admin password to access the dashboard
@@ -74,17 +67,12 @@ export default function AdminPasswordGateModal({
                 id="admin-password"
                 type="password"
                 value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setError('');
-                }}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter admin password"
                 autoComplete="off"
                 disabled={isSubmitting}
+                autoFocus
               />
-              {error && (
-                <p className="text-sm font-medium text-destructive">{error}</p>
-              )}
             </div>
           </div>
           <DialogFooter>
@@ -97,7 +85,7 @@ export default function AdminPasswordGateModal({
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting || !password}>
-              {isSubmitting ? 'Verifying...' : 'Unlock'}
+              {isSubmitting ? 'Verifying...' : 'Login'}
             </Button>
           </DialogFooter>
         </form>

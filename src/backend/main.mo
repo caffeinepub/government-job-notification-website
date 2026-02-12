@@ -10,10 +10,8 @@ import Principal "mo:core/Principal";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
 
-
 actor {
   type JobId = Nat;
-
   type Category = {
     #latestJobs;
     #admitCards;
@@ -90,17 +88,32 @@ actor {
     name : Text;
   };
 
-  let jobPosts = Map.empty<JobId, JobPost>();
-  var nextId = 0;
-  let accessControlState = AccessControl.initState();
-  include MixinAuthorization(accessControlState);
-  let userProfiles = Map.empty<Principal, UserProfile>();
+  type Scheme = {
+    id : Nat;
+    name : Text;
+    category : Text;
+    link : ?Text;
+  };
+
+  func compareSchemesByName(a : Scheme, b : Scheme) : Order.Order {
+    Text.compare(a.name, b.name);
+  };
 
   func compareJobPostsNewestFirst(a : JobPost, b : JobPost) : Order.Order {
     Nat.compare(b.id, a.id);
   };
 
-  // User Profile Management Functions
+  let jobPosts = Map.empty<JobId, JobPost>();
+  let schemes = Map.empty<Nat, Scheme>();
+
+  var nextId = 0;
+  var nextSchemeId = 21;
+
+  let accessControlState = AccessControl.initState();
+  include MixinAuthorization(accessControlState);
+  let userProfiles = Map.empty<Principal, UserProfile>();
+
+  // User Profile Management
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can access profiles");
@@ -122,7 +135,6 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // Admin Check Function
   public query ({ caller }) func isAdmin() : async Bool {
     AccessControl.isAdmin(accessControlState, caller);
   };
@@ -261,5 +273,80 @@ actor {
       Runtime.trap("Job post not found");
     };
     jobPosts.remove(id);
+  };
+
+  // Scheme/YoJna Management
+  public query ({ caller }) func getSchemes() : async [Scheme] {
+    let allSchemes = schemes.values().toArray();
+    allSchemes.sort(compareSchemesByName);
+  };
+
+  public shared ({ caller }) func addScheme(
+    name : Text,
+    category : Text,
+    link : ?Text,
+  ) : async Nat {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can add schemes");
+    };
+
+    let id = nextSchemeId;
+    nextSchemeId += 1;
+
+    let scheme : Scheme = {
+      id;
+      name;
+      category;
+      link;
+    };
+
+    schemes.add(id, scheme);
+    id;
+  };
+
+  public shared ({ caller }) func updateScheme(
+    id : Nat,
+    name : Text,
+    category : Text,
+    link : ?Text,
+  ) : async () {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can update schemes");
+    };
+
+    switch (schemes.get(id)) {
+      case (null) { Runtime.trap("Scheme not found") };
+      case (?_) {
+        let updatedScheme : Scheme = {
+          id;
+          name;
+          category;
+          link;
+        };
+        schemes.add(id, updatedScheme);
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteScheme(id : Nat) : async () {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can delete schemes");
+    };
+
+    if (not schemes.containsKey(id)) {
+      Runtime.trap("Scheme not found");
+    };
+    schemes.remove(id);
+  };
+
+  public query ({ caller }) func getScheme(id : Nat) : async Scheme {
+    switch (schemes.get(id)) {
+      case (null) { Runtime.trap("Scheme not found") };
+      case (?scheme) { scheme };
+    };
+  };
+
+  public query ({ caller }) func getSchemesCount() : async Nat {
+    schemes.size();
   };
 };

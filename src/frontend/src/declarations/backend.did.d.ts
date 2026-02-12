@@ -54,6 +54,12 @@ export interface JobPost {
   'posterImage' : [] | [string],
   'ageLimit' : [] | [AgeLimit],
 }
+export interface Scheme {
+  'id' : bigint,
+  'link' : [] | [string],
+  'name' : string,
+  'category' : string,
+}
 export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
@@ -86,13 +92,18 @@ export interface _SERVICE {
     ],
     JobId
   >,
+  'addScheme' : ActorMethod<[string, string, [] | [string]], bigint>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'deleteJobPost' : ActorMethod<[JobId], undefined>,
+  'deleteScheme' : ActorMethod<[bigint], undefined>,
   'getAdmitCardPosts' : ActorMethod<[], Array<JobPost>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getJobPost' : ActorMethod<[JobId], JobPost>,
   'getJobPostsByCategory' : ActorMethod<[[] | [Category]], Array<JobPost>>,
+  'getScheme' : ActorMethod<[bigint], Scheme>,
+  'getSchemes' : ActorMethod<[], Array<Scheme>>,
+  'getSchemesCount' : ActorMethod<[], bigint>,
   'getSyllabusRepository' : ActorMethod<[], Array<JobPost>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isAdmin' : ActorMethod<[], boolean>,
@@ -118,6 +129,10 @@ export interface _SERVICE {
       },
       Array<Block>,
     ],
+    undefined
+  >,
+  'updateScheme' : ActorMethod<
+    [bigint, string, string, [] | [string]],
     undefined
   >,
 }

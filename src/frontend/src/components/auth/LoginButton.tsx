@@ -1,10 +1,13 @@
 import React from 'react';
 import { useInternetIdentity } from '../../hooks/useInternetIdentity';
 import { useQueryClient } from '@tanstack/react-query';
+import { useClientAdminAuth } from '../../hooks/useClientAdminAuth';
 import { Button } from '../ui/button';
+import { clearSessionParameter } from '../../utils/urlParams';
 
 export default function LoginButton() {
   const { login, clear, loginStatus, identity } = useInternetIdentity();
+  const { logout: logoutAdmin } = useClientAdminAuth();
   const queryClient = useQueryClient();
 
   const isAuthenticated = !!identity;
@@ -14,6 +17,10 @@ export default function LoginButton() {
   const handleAuth = async () => {
     if (isAuthenticated) {
       await clear();
+      // Clear admin token from sessionStorage on logout
+      clearSessionParameter('caffeineAdminToken');
+      // Clear admin unlock state
+      logoutAdmin();
       queryClient.clear();
     } else {
       try {
@@ -33,7 +40,6 @@ export default function LoginButton() {
       onClick={handleAuth}
       disabled={disabled}
       variant={isAuthenticated ? 'outline' : 'default'}
-      size="sm"
     >
       {text}
     </Button>

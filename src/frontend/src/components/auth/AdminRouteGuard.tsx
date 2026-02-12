@@ -25,9 +25,14 @@ export default function AdminRouteGuard({ children }: AdminRouteGuardProps) {
     );
   }
 
-  // Not authenticated or not admin (Internet Identity check)
-  if (!identity || (isFetched && !isAdmin)) {
-    return <AccessDeniedScreen />;
+  // Not authenticated - show login required
+  if (!identity) {
+    return <AccessDeniedScreen mode="loginRequired" />;
+  }
+
+  // Authenticated but not admin - show not authorized
+  if (isFetched && !isAdmin) {
+    return <AccessDeniedScreen mode="notAdmin" />;
   }
 
   // Authenticated and admin, but client-side unlock not satisfied

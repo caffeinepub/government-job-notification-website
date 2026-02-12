@@ -2,10 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-new-visually-distinct-button-labeled-settings-to-the-admin-dashboard-main-action-area-the-same-grid-list-area-where-the-existing-admin-actions-like-job-posts-and-manage-quiz-are-accessed-the-button-must-use-a-grey-black-styling-so-it-is-clearly-different-from-the-other-admin-action-buttons",
-      "featureTitle": "Add a new, visually distinct button labeled \"⚙️ Settings\" to the Admin Dashboard main action area (the same grid/list area where the existing admin actions like \"Job Posts\" and \"📢 Manage Quiz\" are accessed). The button must use a grey/black styling so it is clearly different from the other admin action buttons.",
+      "featureId": "feature-change-the-admin-panel-access-ux-so-clicking-the-admin-panel-tab-never-immediately-shows-an-access-denied-screen-instead-it-must-immediately-open-a-popup-modal-that-asks-the-user-to-enter-an-admin-password",
+      "featureTitle": "Change the Admin Panel access UX so clicking the \"Admin Panel\" tab never immediately shows an \"Access Denied\" screen; instead, it must immediately open a popup/modal that asks the user to enter an admin password.",
       "files": [
-        "frontend/src/pages/admin/AdminDashboardPage.tsx"
+        "frontend/src/components/RootLayout.tsx",
+        "frontend/src/components/auth/AdminPasswordRequiredScreen.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -21,11 +22,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-a-settings-modal-popup-in-the-admin-dashboard-that-opens-when-the-settings-button-is-clicked-the-modal-must-contain-a-simple-form-with-1-a-labeled-password-input-field-with-label-text-gemini-api-key-input-type-password-so-the-value-is-hidden-and-2-a-button-labeled-save-settings",
-      "featureTitle": "Implement a Settings modal (popup) in the Admin Dashboard that opens when the \"⚙️ Settings\" button is clicked. The modal must contain a simple form with: (1) a labeled password input field with label text \"Gemini API Key\" (input type=password so the value is hidden), and (2) a button labeled \"Save Settings\".",
+      "featureId": "feature-implement-client-side-admin-authentication-using-the-exact-password-string-ni-ra-j-gurja-r-and-store-the-session-flag-using-localstorage-setitem-isadmin-true-on-successful-login-if-the-password-is-incorrect-show-an-alert-with-the-exact-text-wrong-password",
+      "featureTitle": "Implement client-side admin authentication using the exact password string \"@ni#ra&j*gurja:r\" and store the session flag using localStorage.setItem('isAdmin','true') on successful login; if the password is incorrect, show an alert with the exact text \"Wrong Password!\".",
       "files": [
-        "frontend/src/components/admin/AdminSettingsDialog.tsx",
-        "frontend/src/pages/admin/AdminDashboardPage.tsx"
+        "frontend/src/components/auth/AdminPasswordGateModal.tsx",
+        "frontend/src/hooks/useClientAdminAuth.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -41,10 +42,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-when-the-user-clicks-save-settings-in-the-admin-dashboard-settings-modal-store-the-entered-api-key-value-trimmed-in-browser-local-storage-under-the-key-gemini-api-key-after-saving-show-a-success-message-exactly-api-key-saved-successfully",
-      "featureTitle": "When the user clicks \"Save Settings\" in the Admin Dashboard Settings modal, store the entered API key value (trimmed) in browser Local Storage under the key \"gemini_api_key\". After saving, show a success message exactly: \"API Key Saved Successfully! ✅\".",
+      "featureId": "feature-add-persistence-on-page-load-for-the-admin-panel-if-localstorage-isadmin-is-the-string-true-show-the-admin-panel-dashboard-directly-otherwise-show-the-login-modal",
+      "featureTitle": "Add persistence on page load for the Admin Panel: if localStorage 'isAdmin' is the string 'true', show the Admin Panel dashboard directly; otherwise show the login modal.",
       "files": [
-        "frontend/src/components/admin/AdminSettingsDialog.tsx"
+        "frontend/src/hooks/useClientAdminAuth.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -56,6 +57,26 @@
       ],
       "testIds": [
         "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-after-successful-login-reveal-the-admin-panel-dashboard-actions-including-job-posts-quiz-and-settings-and-add-a-small-logout-button-in-the-top-right-of-the-admin-panel-that-clears-the-admin-session-by-removing-resetting-localstorage-isadmin-and-returns-the-admin-panel-to-the-locked-state-login-modal-shown-on-next-view",
+      "featureTitle": "After successful login, reveal the Admin Panel dashboard actions (including \"Job Posts\", \"Quiz\", and \"Settings\") and add a small \"Logout\" button in the top-right of the Admin Panel that clears the admin session by removing/resetting localStorage 'isAdmin' and returns the Admin Panel to the locked state (login modal shown on next view).",
+      "files": [
+        "frontend/src/components/auth/AdminPasswordGateModal.tsx",
+        "frontend/src/pages/admin/AdminDashboardPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
       ],
       "confidence": "high"
     }

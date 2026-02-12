@@ -7,6 +7,36 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
+export type Block = {
+    __kind__: "table";
+    table: {
+        title?: string;
+        rows: Array<Array<string>>;
+    };
+} | {
+    __kind__: "title";
+    title: {
+        isMainHeading: boolean;
+        text: string;
+    };
+} | {
+    __kind__: "link";
+    link: {
+        url: string;
+        linkText: string;
+    };
+} | {
+    __kind__: "image";
+    image: {
+        url: string;
+        altText?: string;
+    };
+} | {
+    __kind__: "paragraph";
+    paragraph: {
+        text: string;
+    };
+};
 export interface VacancyDetail {
     postName: string;
     eligibility: string;
@@ -44,40 +74,16 @@ export interface ImportantDates {
     examDate?: string;
     lastDate?: string;
 }
+export interface Scheme {
+    id: bigint;
+    link?: string;
+    name: string;
+    category: string;
+}
 export interface FeeCategory {
     name: string;
     amount: string;
 }
-export type Block = {
-    __kind__: "table";
-    table: {
-        title?: string;
-        rows: Array<Array<string>>;
-    };
-} | {
-    __kind__: "title";
-    title: {
-        isMainHeading: boolean;
-        text: string;
-    };
-} | {
-    __kind__: "link";
-    link: {
-        url: string;
-        linkText: string;
-    };
-} | {
-    __kind__: "image";
-    image: {
-        url: string;
-        altText?: string;
-    };
-} | {
-    __kind__: "paragraph";
-    paragraph: {
-        text: string;
-    };
-};
 export interface UserProfile {
     name: string;
 }
@@ -98,13 +104,18 @@ export interface backendInterface {
         notification?: string;
         officialWebsite?: string;
     }, blocks: Array<Block>): Promise<JobId>;
+    addScheme(name: string, category: string, link: string | null): Promise<bigint>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     deleteJobPost(id: JobId): Promise<void>;
+    deleteScheme(id: bigint): Promise<void>;
     getAdmitCardPosts(): Promise<Array<JobPost>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getJobPost(id: JobId): Promise<JobPost>;
     getJobPostsByCategory(category: Category | null): Promise<Array<JobPost>>;
+    getScheme(id: bigint): Promise<Scheme>;
+    getSchemes(): Promise<Array<Scheme>>;
+    getSchemesCount(): Promise<bigint>;
     getSyllabusRepository(): Promise<Array<JobPost>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isAdmin(): Promise<boolean>;
@@ -115,4 +126,5 @@ export interface backendInterface {
         notification?: string;
         officialWebsite?: string;
     }, blocks: Array<Block>): Promise<void>;
+    updateScheme(id: bigint, name: string, category: string, link: string | null): Promise<void>;
 }

@@ -1,11 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Add an Admin Dashboard Settings modal that lets admins save a Gemini API key to browser localStorage.
+**Goal:** Update the Admin Panel access flow to use a password login modal (no immediate “Access Denied”), persist admin unlock via localStorage, and support logout.
 
 **Planned changes:**
-- Add a new grey/black styled “⚙️ Settings” button to the Admin Dashboard main action area alongside existing admin actions.
-- Implement a modal dialog opened by the Settings button containing a password-masked input labeled “Gemini API Key” and a “Save Settings” button.
-- Prefill the input from localStorage key `gemini_api_key` when the modal opens, and on save store the trimmed value back to `gemini_api_key` and show the success message “API Key Saved Successfully! ✅”.
+- When navigating to the Admin Panel while not unlocked, automatically open a modal prompting “Enter Admin Password” with a masked password input and a “Login” action (no initial “Access Denied” screen).
+- Validate the entered password against the exact string `@ni#ra&j*gurja:r`; on success set `localStorage.setItem('isAdmin','true')` and close the modal; on failure show a browser alert exactly “Wrong Password!”.
+- On Admin Panel load/entry, check `localStorage.getItem('isAdmin') === 'true'` to decide whether to show the dashboard immediately or open the login modal.
+- After successful login, display the Admin Panel dashboard actions (“Job Posts”, “Quiz”, “Settings”) and add a small top-right “Logout” button that clears/resets the `isAdmin` localStorage flag and returns the panel to the locked state.
 
-**User-visible outcome:** Admins can open a Settings popup from the Admin Dashboard, enter/update a hidden Gemini API key, save it to localStorage, and see a success confirmation.
+**User-visible outcome:** Clicking the Admin Panel always prompts for an admin password (unless already unlocked). After logging in, the dashboard options appear and the user can log out to lock the Admin Panel again.

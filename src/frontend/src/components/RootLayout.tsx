@@ -1,5 +1,4 @@
 import { Link, useLocation, Outlet, useNavigate } from '@tanstack/react-router';
-import { useState } from 'react';
 import { SiteNoticeTicker } from './SiteNoticeTicker';
 import { Sun, Moon, Briefcase } from 'lucide-react';
 import LoginButton from './auth/LoginButton';
@@ -9,14 +8,12 @@ import { JobSearchProvider, useJobSearch } from '../contexts/JobSearchContext';
 import { Input } from './ui/input';
 import { useThemePreference } from '../hooks/useThemePreference';
 import { Button } from './ui/button';
-import AdminPasswordGateModal from './auth/AdminPasswordGateModal';
 
 function HeaderContent() {
   const location = useLocation();
   const navigate = useNavigate();
   const { searchQuery, setSearchQuery } = useJobSearch();
   const { theme, toggleTheme } = useThemePreference();
-  const [showAdminPasswordModal, setShowAdminPasswordModal] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
     if (location.pathname !== '/') {
@@ -37,7 +34,7 @@ function HeaderContent() {
 
   const handleAdminPanelClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    setShowAdminPasswordModal(true);
+    navigate({ to: '/admin/dashboard' });
   };
 
   return (
@@ -162,11 +159,6 @@ function HeaderContent() {
       
       <MotivationalBanner />
       <FloatingSocialButtons />
-      
-      <AdminPasswordGateModal
-        open={showAdminPasswordModal}
-        onOpenChange={setShowAdminPasswordModal}
-      />
     </div>
   );
 }

@@ -1,60 +1,90 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Admin Dashboard Settings modal for Gemini API key (localStorage)",
+  "title": "Admin Panel password-modal unlock flow with localStorage persistence and logout",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add a visually distinct grey/black “⚙️ Settings” button to the Admin Dashboard main action area and wire it to open the Settings modal.",
+      "summary": "Ensure entering the Admin Panel does not first show an Access Denied/locked screen and instead auto-opens an admin password modal.",
       "acceptanceCriteria": [
-        "Admin Dashboard shows a new button labeled \"⚙️ Settings\" alongside the existing admin action entries.",
-        "The \"⚙️ Settings\" button has grey/black styling distinct from the other buttons/tabs.",
-        "Clicking the button triggers opening the Settings popup/modal (see REQ-2)."
+        "Navigating to the Admin Panel route/tab does not render an \"Access Denied\" message as the first step when the admin session is not unlocked.",
+        "A modal opens automatically on entry to the Admin Panel when the admin session is not unlocked.",
+        "The modal includes user-facing text in English and includes the prompt text: \"Enter Admin Password\".",
+        "The password input is type=\"password\" (masked/dots)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "path": "frontend/src/components/auth/AdminPasswordRequiredScreen.tsx",
           "operation": "modify",
-          "description": "Add a new grey/black styled \"⚙️ Settings\" button in the same action area as the existing admin actions (TabsList). Wire it to open the Settings modal via local component state, and render the modal component within this page so it is not orphaned. Use shadcn-ui composed components (e.g., Button) without modifying files under frontend/src/components/ui. Verify the component's usage instructions before implementing."
+          "description": "Change the locked-state view so it immediately opens the admin password modal on render (no initial locked/denied messaging UI). Ensure the modal prompt includes the exact text \"Enter Admin Password\". Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/RootLayout.tsx",
+          "operation": "modify",
+          "description": "Update the \"Admin Panel\" tab click behavior to navigate to the Admin Panel route (e.g., /admin) and rely on the route guard + auto-open modal behavior, rather than opening a modal from the header. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Implement a Settings modal in Admin Dashboard with a password-masked “Gemini API Key” field and “Save Settings” button, prefilled from localStorage.",
+      "summary": "Implement client-side admin password check with the exact password string, persist unlocked state to localStorage key 'isAdmin', and alert on wrong password.",
       "acceptanceCriteria": [
-        "Clicking \"⚙️ Settings\" opens a modal dialog.",
-        "Modal contains a form field labeled \"Gemini API Key\" and the input uses password masking.",
-        "Modal contains a primary action button labeled \"Save Settings\".",
-        "If a value already exists in localStorage under \"gemini_api_key\", the field is prefilled with that value when opening the modal."
+        "The login modal has a primary action labeled \"Login\".",
+        "On clicking \"Login\" with the exact password \"@ni#ra&j*gurja:r\", the app calls localStorage.setItem('isAdmin','true') and closes/hides the modal.",
+        "On clicking \"Login\" with any other password, the app shows a browser alert with exactly: \"Wrong Password!\" and does not set localStorage.isAdmin to true.",
+        "No inline \"Access Denied\" message is shown as the wrong-password error state (use only the requested alert)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/admin/AdminSettingsDialog.tsx",
-          "operation": "create",
-          "description": "Create an Admin Settings modal component using composed shadcn-ui Dialog/DialogContent/DialogHeader/DialogTitle, Label, Input (type=\"password\"), and Button. Accept controlled props (open, onOpenChange) from the Admin Dashboard page. When the modal opens, prefill the input value from localStorage key \"gemini_api_key\". Verify the component's usage instructions before implementing."
+          "path": "frontend/src/hooks/useClientAdminAuth.ts",
+          "operation": "modify",
+          "description": "Replace the existing client-admin auth storage with the required localStorage key/value: on successful password match (exact \"@ni#ra&j*gurja:r\") call localStorage.setItem('isAdmin','true'); on mismatch trigger alert(\"Wrong Password!\") and keep locked. Expose logout that clears/resets localStorage 'isAdmin'."
         },
         {
-          "path": "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "path": "frontend/src/components/auth/AdminPasswordGateModal.tsx",
           "operation": "modify",
-          "description": "Import and render the new AdminSettingsDialog component and connect it to the Settings button click/open state so the modal opens and closes correctly. Verify the component's usage instructions before implementing."
+          "description": "Update the modal UI text to English and include the exact prompt text \"Enter Admin Password\"; ensure the primary action button label is exactly \"Login\"; remove any inline error messaging like \"Access Denied\" and rely solely on the requested browser alert from the auth hook on wrong password. Keep the input type=\"password\". Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Save the trimmed Gemini API key to localStorage and show exact success message after saving from the Settings modal.",
+      "summary": "Persist Admin Panel unlock state across reloads using localStorage 'isAdmin' === 'true' to bypass the modal.",
       "acceptanceCriteria": [
-        "Clicking \"Save Settings\" writes the trimmed API key to localStorage key \"gemini_api_key\".",
-        "A visible success notification/message appears with exact text: \"API Key Saved Successfully! ✅\".",
-        "After saving, reopening the Settings modal shows the saved key value still present (read back from localStorage).",
-        "No backend changes are required for saving; it is purely localStorage-based."
+        "With localStorage.getItem('isAdmin') === 'true', entering/reloading the Admin Panel shows the dashboard content immediately and does not open the login modal.",
+        "With localStorage.getItem('isAdmin') missing or not equal to 'true', entering/reloading the Admin Panel opens the login modal automatically."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/admin/AdminSettingsDialog.tsx",
+          "path": "frontend/src/hooks/useClientAdminAuth.ts",
           "operation": "modify",
-          "description": "Implement the Save Settings action: take the current input value, trim it, persist to browser localStorage under the exact key \"gemini_api_key\", and show a success toast/message with exact text \"API Key Saved Successfully! ✅\" (use the existing toast pattern already used in admin pages, e.g., sonner). Ensure reopening the modal re-reads the saved value for prefill. Verify the component's usage instructions before implementing."
+          "description": "Ensure isUnlocked derives from localStorage.getItem('isAdmin') === 'true' on initial load and subsequent updates, so refresh/navigation correctly preserves or requires the modal."
+        },
+        {
+          "path": "frontend/src/components/auth/AdminRouteGuard.tsx",
+          "operation": "modify",
+          "description": "Confirm the guard uses the updated useClientAdminAuth isUnlocked state to decide between rendering protected admin content vs. the auto-opening password-modal locked state view, without rendering AccessDenied for the locked-password case. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "After login, show Admin Panel dashboard actions and add a top-right Logout button that clears localStorage 'isAdmin' and returns the panel to the locked state.",
+      "acceptanceCriteria": [
+        "After a successful admin password login, the Admin Panel shows dashboard options including: \"Job Posts\", \"Quiz\", and \"Settings\".",
+        "A \"Logout\" button is visible in the Admin Panel top-right area while logged in.",
+        "Clicking \"Logout\" clears the localStorage 'isAdmin' flag (so localStorage.getItem('isAdmin') is no longer 'true') and returns the Admin Panel to the locked state (modal required again)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "operation": "modify",
+          "description": "Add/replace the top-right control to be a small \"Logout\" button (visible while unlocked) that calls useClientAdminAuth.logout() and returns the admin area to the locked state (so revisiting requires the password modal again). Ensure the dashboard continues to present actions including \"Job Posts\", \"Quiz\", and \"Settings\". Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/auth/AdminPasswordGateModal.tsx",
+          "operation": "modify",
+          "description": "On successful login, close/hide the modal and allow the Admin Dashboard UI to be revealed (no intermediate denied/locked screen). Verify the component's usage instructions before implementing."
         }
       ]
     }

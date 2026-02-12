@@ -9,6 +9,7 @@ import { SimpleJobsSection } from '../components/home/SimpleJobsSection';
 import { VerticalTickerList } from '../components/home/VerticalTickerList';
 import { PreparationResourcesSection } from '../components/home/PreparationResourcesSection';
 import DailyQuizSection from '../components/home/DailyQuizSection';
+import { SarkariSchemesSection } from '../components/home/SarkariSchemesSection';
 import { useJobSearch } from '../contexts/JobSearchContext';
 
 type BackendItem = {
@@ -234,6 +235,11 @@ export default function HomePage() {
         <div className="lg:col-span-1">
           <QuickOfficialLinks />
         </div>
+      </div>
+
+      {/* Sarkari Schemes Section */}
+      <div className="mb-8">
+        <SarkariSchemesSection />
       </div>
 
       {/* Preparation & Resources Section */}

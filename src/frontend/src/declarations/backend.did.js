@@ -71,6 +71,12 @@ export const JobPost = IDL.Record({
   'ageLimit' : IDL.Opt(AgeLimit),
 });
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const Scheme = IDL.Record({
+  'id' : IDL.Nat,
+  'link' : IDL.Opt(IDL.Text),
+  'name' : IDL.Text,
+  'category' : IDL.Text,
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
@@ -96,8 +102,14 @@ export const idlService = IDL.Service({
       [JobId],
       [],
     ),
+  'addScheme' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Opt(IDL.Text)],
+      [IDL.Nat],
+      [],
+    ),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'deleteJobPost' : IDL.Func([JobId], [], []),
+  'deleteScheme' : IDL.Func([IDL.Nat], [], []),
   'getAdmitCardPosts' : IDL.Func([], [IDL.Vec(JobPost)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
@@ -107,6 +119,9 @@ export const idlService = IDL.Service({
       [IDL.Vec(JobPost)],
       ['query'],
     ),
+  'getScheme' : IDL.Func([IDL.Nat], [Scheme], ['query']),
+  'getSchemes' : IDL.Func([], [IDL.Vec(Scheme)], ['query']),
+  'getSchemesCount' : IDL.Func([], [IDL.Nat], ['query']),
   'getSyllabusRepository' : IDL.Func([], [IDL.Vec(JobPost)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
@@ -136,6 +151,11 @@ export const idlService = IDL.Service({
         }),
         IDL.Vec(Block),
       ],
+      [],
+      [],
+    ),
+  'updateScheme' : IDL.Func(
+      [IDL.Nat, IDL.Text, IDL.Text, IDL.Opt(IDL.Text)],
       [],
       [],
     ),
@@ -204,6 +224,12 @@ export const idlFactory = ({ IDL }) => {
     'ageLimit' : IDL.Opt(AgeLimit),
   });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const Scheme = IDL.Record({
+    'id' : IDL.Nat,
+    'link' : IDL.Opt(IDL.Text),
+    'name' : IDL.Text,
+    'category' : IDL.Text,
+  });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
@@ -229,8 +255,14 @@ export const idlFactory = ({ IDL }) => {
         [JobId],
         [],
       ),
+    'addScheme' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Opt(IDL.Text)],
+        [IDL.Nat],
+        [],
+      ),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'deleteJobPost' : IDL.Func([JobId], [], []),
+    'deleteScheme' : IDL.Func([IDL.Nat], [], []),
     'getAdmitCardPosts' : IDL.Func([], [IDL.Vec(JobPost)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
@@ -240,6 +272,9 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(JobPost)],
         ['query'],
       ),
+    'getScheme' : IDL.Func([IDL.Nat], [Scheme], ['query']),
+    'getSchemes' : IDL.Func([], [IDL.Vec(Scheme)], ['query']),
+    'getSchemesCount' : IDL.Func([], [IDL.Nat], ['query']),
     'getSyllabusRepository' : IDL.Func([], [IDL.Vec(JobPost)], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
@@ -269,6 +304,11 @@ export const idlFactory = ({ IDL }) => {
           }),
           IDL.Vec(Block),
         ],
+        [],
+        [],
+      ),
+    'updateScheme' : IDL.Func(
+        [IDL.Nat, IDL.Text, IDL.Text, IDL.Opt(IDL.Text)],
         [],
         [],
       ),

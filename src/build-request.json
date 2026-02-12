@@ -1,74 +1,92 @@
 {
   "kind": "build_request",
-  "title": "Add Admin Dashboard Settings modal to store Gemini API key in localStorage",
+  "title": "Fix Admin Panel access flow with password login modal, localStorage persistence, and logout",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a new, visually distinct button labeled \"⚙️ Settings\" to the Admin Dashboard main action area (the same grid/list area where the existing admin actions like \"Job Posts\" and \"📢 Manage Quiz\" are accessed). The button must use a grey/black styling so it is clearly different from the other admin action buttons.",
+      "text": "Change the Admin Panel access UX so clicking the \"Admin Panel\" tab never immediately shows an \"Access Denied\" screen; instead, it must immediately open a popup/modal that asks the user to enter an admin password.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-3"
         ],
         "quotes": [
-          "Inside the Admin Dashboard grid (where 'Job Posts' and 'Manage Quiz' buttons are), add a new button labeled '⚙️ Settings'. Make it distinct (e.g., Grey or Black color)."
+          "When I click the 'Admin Panel' tab, do NOT show the 'Access Denied' message immediately.\n​Instead, trigger a Popup/Modal asking: 'Enter Admin Password'."
         ]
       },
       "acceptanceCriteria": [
-        "Admin Dashboard shows a new button labeled \"⚙️ Settings\" alongside the existing admin action entries.",
-        "The \"⚙️ Settings\" button has grey/black styling distinct from the other buttons/tabs.",
-        "Clicking the button triggers opening the Settings popup/modal (see REQ-2)."
+        "Navigating to the Admin Panel route/tab does not render an \"Access Denied\" message as the first step when the admin session is not unlocked.",
+        "A modal opens automatically on entry to the Admin Panel when the admin session is not unlocked.",
+        "The modal includes user-facing text in English and includes the prompt text: \"Enter Admin Password\".",
+        "The password input is type=\"password\" (masked/dots)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Implement a Settings modal (popup) in the Admin Dashboard that opens when the \"⚙️ Settings\" button is clicked. The modal must contain a simple form with: (1) a labeled password input field with label text \"Gemini API Key\" (input type=password so the value is hidden), and (2) a button labeled \"Save Settings\".",
+      "text": "Implement client-side admin authentication using the exact password string \"@ni#ra&j*gurja:r\" and store the session flag using localStorage.setItem('isAdmin','true') on successful login; if the password is incorrect, show an alert with the exact text \"Wrong Password!\".",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-3"
         ],
         "quotes": [
-          "When I click the 'Settings' button, open a simple popup form. Input Field: Label it 'Gemini API Key'. Make it a password field (dots) so the key is hidden. Save Button: Add a 'Save Settings' button."
+          "When I click 'Login', check the password against this exact string: @ni#ra&j*gurja&j*gurja:r\n​If Correct:\n​Set localStorage.setItem('isAdmin', 'true').\n​...\n​If Wrong: Show an alert 'Wrong Password!'."
         ]
       },
       "acceptanceCriteria": [
-        "Clicking \"⚙️ Settings\" opens a modal dialog.",
-        "Modal contains a form field labeled \"Gemini API Key\" and the input uses password masking.",
-        "Modal contains a primary action button labeled \"Save Settings\".",
-        "If a value already exists in localStorage under \"gemini_api_key\", the field is prefilled with that value when opening the modal."
+        "The login modal has a primary action labeled \"Login\".",
+        "On clicking \"Login\" with the exact password \"@ni#ra&j*gurja:r\", the app calls localStorage.setItem('isAdmin','true') and closes/hides the modal.",
+        "On clicking \"Login\" with any other password, the app shows a browser alert with exactly: \"Wrong Password!\" and does not set localStorage.isAdmin to true.",
+        "No inline \"Access Denied\" message is shown as the wrong-password error state (use only the requested alert)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "When the user clicks \"Save Settings\" in the Admin Dashboard Settings modal, store the entered API key value (trimmed) in browser Local Storage under the key \"gemini_api_key\". After saving, show a success message exactly: \"API Key Saved Successfully! ✅\".",
+      "text": "Add persistence on page load for the Admin Panel: if localStorage 'isAdmin' is the string 'true', show the Admin Panel dashboard directly; otherwise show the login modal.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-3"
         ],
         "quotes": [
-          "When I click 'Save', store the Key in Local Storage as gemini_api_key. Show a message: 'API Key Saved Successfully! ✅'. This key will be used by the Chatbot."
+          "On page load, check if isAdmin is 'true' in Local Storage.\n​If true, show the Dashboard directly.\n​If false, show the Login Modal."
         ]
       },
       "acceptanceCriteria": [
-        "Clicking \"Save Settings\" writes the trimmed API key to localStorage key \"gemini_api_key\".",
-        "A visible success notification/message appears with exact text: \"API Key Saved Successfully! ✅\".",
-        "After saving, reopening the Settings modal shows the saved key value still present (read back from localStorage).",
-        "No backend changes are required for saving; it is purely localStorage-based."
+        "With localStorage.getItem('isAdmin') === 'true', entering/reloading the Admin Panel shows the dashboard content immediately and does not open the login modal.",
+        "With localStorage.getItem('isAdmin') missing or not equal to 'true', entering/reloading the Admin Panel opens the login modal automatically."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "After successful login, reveal the Admin Panel dashboard actions (including \"Job Posts\", \"Quiz\", and \"Settings\") and add a small \"Logout\" button in the top-right of the Admin Panel that clears the admin session by removing/resetting localStorage 'isAdmin' and returns the Admin Panel to the locked state (login modal shown on next view).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-3"
+        ],
+        "quotes": [
+          "Reveal the Dashboard (Job Posts, Quiz, Settings buttons).\n...\nAdd a small 'Logout' button in the top-right corner of the Admin Panel to clear the session."
+        ]
+      },
+      "acceptanceCriteria": [
+        "After a successful admin password login, the Admin Panel shows dashboard options including: \"Job Posts\", \"Quiz\", and \"Settings\".",
+        "A \"Logout\" button is visible in the Admin Panel top-right area while logged in.",
+        "Clicking \"Logout\" clears the localStorage 'isAdmin' flag (so localStorage.getItem('isAdmin') is no longer 'true') and returns the Admin Panel to the locked state (modal required again)."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files under frontend/src/components/ui (shadcn components are read-only and must be composed).",
-    "Do not modify frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, or frontend/src/main.tsx (immutable paths).",
-    "Persist the API key only in browser localStorage under the exact key name \"gemini_api_key\"."
+    "Do not edit any files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or anything in frontend/src/components/ui (compose instead of modifying UI primitives).",
+    "Use English for all user-facing text.",
+    "Use the exact admin password string provided by the user without modifications: @ni#ra&j*gurja:r.",
+    "Use localStorage key exactly 'isAdmin' with value exactly 'true' for the admin session flag."
   ],
   "nonGoals": [
-    "Do not store the Gemini API key in the Motoko backend canister or any server-side storage.",
-    "Do not add third-party authentication or external secret management.",
-    "Do not change the chatbot prompt/content behavior beyond ensuring it can read the key from localStorage (it already uses \"gemini_api_key\")."
+    "Do not implement or change Internet Identity authentication in this request.",
+    "Do not add any backend/admin-role changes in Motoko for this request (client-side gating only, per user instructions).",
+    "Do not add new admin features beyond the requested login modal flow, persistence, and logout."
   ],
   "imageRequirements": {
     "required": [],

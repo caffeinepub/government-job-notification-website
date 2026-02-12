@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { ScrollArea } from './ui/scroll-area';
 import { Send, Bot, User, Loader2 } from 'lucide-react';
 
 interface AiChatModalProps {
@@ -28,13 +27,12 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
   ]);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when messages change
+  // Auto-scroll to bottom when messages change using scrollTop/scrollHeight
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -75,16 +73,16 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
         const errorMessage: Message = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: 'Error: Please put API Key in Admin Panel',
+          content: 'Error: Please set your API Key in the Admin Panel first.',
         };
         setMessages((prev) => [...prev, errorMessage]);
         setIsSending(false);
         return;
       }
 
-      // Make API request to Gemini
+      // Make API request directly to Google Gemini API
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey.trim()}`,
         {
           method: 'POST',
           headers: {
@@ -164,8 +162,8 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] h-[600px] flex flex-col p-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+      <DialogContent className="sm:max-w-[500px] flex flex-col p-0">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Bot className="w-5 h-5 text-primary" />
             AI Chat Assistant
@@ -175,45 +173,51 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 px-6 py-4" ref={scrollAreaRef}>
-          <div className="space-y-4">
-            {messages.map((message) => (
+        {/* Fixed height scroll container with flex column layout */}
+        <div 
+          ref={chatContainerRef}
+          className="px-6 py-4 flex flex-col gap-4"
+          style={{
+            height: '300px',
+            overflowY: 'auto',
+          }}
+        >
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex gap-3 ${
+                message.role === 'user' ? 'justify-end' : 'justify-start'
+              }`}
+            >
+              {message.role === 'assistant' && (
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  {message.content === 'Thinking...' ? (
+                    <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                  ) : (
+                    <Bot className="w-5 h-5 text-primary" />
+                  )}
+                </div>
+              )}
               <div
-                key={message.id}
-                className={`flex gap-3 ${
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
+                className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                  message.role === 'user'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-foreground'
                 }`}
               >
-                {message.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    {message.content === 'Thinking...' ? (
-                      <Loader2 className="w-5 h-5 text-primary animate-spin" />
-                    ) : (
-                      <Bot className="w-5 h-5 text-primary" />
-                    )}
-                  </div>
-                )}
-                <div
-                  className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-foreground'
-                  }`}
-                >
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
-                </div>
-                {message.role === 'user' && (
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                    <User className="w-5 h-5 text-primary-foreground" />
-                  </div>
-                )}
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
               </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-        </ScrollArea>
+              {message.role === 'user' && (
+                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                  <User className="w-5 h-5 text-primary-foreground" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
 
-        <div className="px-6 py-4 border-t">
+        {/* Fixed input area at bottom */}
+        <div className="px-6 py-4 border-t flex-shrink-0">
           <div className="flex gap-2">
             <Input
               value={input}

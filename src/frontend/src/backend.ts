@@ -89,6 +89,36 @@ export class ExternalBlob {
         return this;
     }
 }
+export type Block = {
+    __kind__: "table";
+    table: {
+        title?: string;
+        rows: Array<Array<string>>;
+    };
+} | {
+    __kind__: "title";
+    title: {
+        isMainHeading: boolean;
+        text: string;
+    };
+} | {
+    __kind__: "link";
+    link: {
+        url: string;
+        linkText: string;
+    };
+} | {
+    __kind__: "image";
+    image: {
+        url: string;
+        altText?: string;
+    };
+} | {
+    __kind__: "paragraph";
+    paragraph: {
+        text: string;
+    };
+};
 export interface VacancyDetail {
     postName: string;
     eligibility: string;
@@ -126,40 +156,16 @@ export interface ImportantDates {
     examDate?: string;
     lastDate?: string;
 }
+export interface Scheme {
+    id: bigint;
+    link?: string;
+    name: string;
+    category: string;
+}
 export interface FeeCategory {
     name: string;
     amount: string;
 }
-export type Block = {
-    __kind__: "table";
-    table: {
-        title?: string;
-        rows: Array<Array<string>>;
-    };
-} | {
-    __kind__: "title";
-    title: {
-        isMainHeading: boolean;
-        text: string;
-    };
-} | {
-    __kind__: "link";
-    link: {
-        url: string;
-        linkText: string;
-    };
-} | {
-    __kind__: "image";
-    image: {
-        url: string;
-        altText?: string;
-    };
-} | {
-    __kind__: "paragraph";
-    paragraph: {
-        text: string;
-    };
-};
 export interface UserProfile {
     name: string;
 }
@@ -181,13 +187,18 @@ export interface backendInterface {
         notification?: string;
         officialWebsite?: string;
     }, blocks: Array<Block>): Promise<JobId>;
+    addScheme(name: string, category: string, link: string | null): Promise<bigint>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     deleteJobPost(id: JobId): Promise<void>;
+    deleteScheme(id: bigint): Promise<void>;
     getAdmitCardPosts(): Promise<Array<JobPost>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getJobPost(id: JobId): Promise<JobPost>;
     getJobPostsByCategory(category: Category | null): Promise<Array<JobPost>>;
+    getScheme(id: bigint): Promise<Scheme>;
+    getSchemes(): Promise<Array<Scheme>>;
+    getSchemesCount(): Promise<bigint>;
     getSyllabusRepository(): Promise<Array<JobPost>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isAdmin(): Promise<boolean>;
@@ -198,8 +209,9 @@ export interface backendInterface {
         notification?: string;
         officialWebsite?: string;
     }, blocks: Array<Block>): Promise<void>;
+    updateScheme(id: bigint, name: string, category: string, link: string | null): Promise<void>;
 }
-import type { AgeLimit as _AgeLimit, Block as _Block, Category as _Category, FeeCategory as _FeeCategory, ImportantDates as _ImportantDates, JobId as _JobId, JobPost as _JobPost, UserProfile as _UserProfile, UserRole as _UserRole, VacancyDetail as _VacancyDetail } from "./declarations/backend.did.d.ts";
+import type { AgeLimit as _AgeLimit, Block as _Block, Category as _Category, FeeCategory as _FeeCategory, ImportantDates as _ImportantDates, JobId as _JobId, JobPost as _JobPost, Scheme as _Scheme, UserProfile as _UserProfile, UserRole as _UserRole, VacancyDetail as _VacancyDetail } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
@@ -234,6 +246,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async addScheme(arg0: string, arg1: string, arg2: string | null): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addScheme(arg0, arg1, to_candid_opt_n1(this._uploadFile, this._downloadFile, arg2));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addScheme(arg0, arg1, to_candid_opt_n1(this._uploadFile, this._downloadFile, arg2));
+            return result;
+        }
+    }
     async assignCallerUserRole(arg0: Principal, arg1: UserRole): Promise<void> {
         if (this.processError) {
             try {
@@ -259,6 +285,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.deleteJobPost(arg0);
+            return result;
+        }
+    }
+    async deleteScheme(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteScheme(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteScheme(arg0);
             return result;
         }
     }
@@ -330,6 +370,48 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getJobPostsByCategory(to_candid_opt_n38(this._uploadFile, this._downloadFile, arg0));
             return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getScheme(arg0: bigint): Promise<Scheme> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getScheme(arg0);
+                return from_candid_Scheme_n39(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getScheme(arg0);
+            return from_candid_Scheme_n39(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getSchemes(): Promise<Array<Scheme>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getSchemes();
+                return from_candid_vec_n41(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getSchemes();
+            return from_candid_vec_n41(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getSchemesCount(): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getSchemesCount();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getSchemesCount();
+            return result;
         }
     }
     async getSyllabusRepository(): Promise<Array<JobPost>> {
@@ -420,6 +502,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async updateScheme(arg0: bigint, arg1: string, arg2: string, arg3: string | null): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateScheme(arg0, arg1, arg2, to_candid_opt_n1(this._uploadFile, this._downloadFile, arg3));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateScheme(arg0, arg1, arg2, to_candid_opt_n1(this._uploadFile, this._downloadFile, arg3));
+            return result;
+        }
+    }
 }
 function from_candid_AgeLimit_n32(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _AgeLimit): AgeLimit {
     return from_candid_record_n33(_uploadFile, _downloadFile, value);
@@ -435,6 +531,9 @@ function from_candid_ImportantDates_n29(_uploadFile: (file: ExternalBlob) => Pro
 }
 function from_candid_JobPost_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _JobPost): JobPost {
     return from_candid_record_n19(_uploadFile, _downloadFile, value);
+}
+function from_candid_Scheme_n39(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Scheme): Scheme {
+    return from_candid_record_n40(_uploadFile, _downloadFile, value);
 }
 function from_candid_UserRole_n36(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
     return from_candid_variant_n37(_uploadFile, _downloadFile, value);
@@ -579,6 +678,24 @@ function from_candid_record_n33(_uploadFile: (file: ExternalBlob) => Promise<Uin
         relaxation: value.relaxation
     };
 }
+function from_candid_record_n40(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    link: [] | [string];
+    name: string;
+    category: string;
+}): {
+    id: bigint;
+    link?: string;
+    name: string;
+    category: string;
+} {
+    return {
+        id: value.id,
+        link: record_opt_to_undefined(from_candid_opt_n20(_uploadFile, _downloadFile, value.link)),
+        name: value.name,
+        category: value.category
+    };
+}
 function from_candid_variant_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     table: {
         title: [] | [string];
@@ -675,6 +792,9 @@ function from_candid_vec_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
 }
 function from_candid_vec_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Block>): Array<Block> {
     return value.map((x)=>from_candid_Block_n23(_uploadFile, _downloadFile, x));
+}
+function from_candid_vec_n41(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Scheme>): Array<Scheme> {
+    return value.map((x)=>from_candid_Scheme_n39(_uploadFile, _downloadFile, x));
 }
 function to_candid_AgeLimit_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: AgeLimit): _AgeLimit {
     return to_candid_record_n6(_uploadFile, _downloadFile, value);

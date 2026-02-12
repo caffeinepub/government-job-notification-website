@@ -1,48 +1,64 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T16:34:07.948Z",
+  "generatedAt": "2026-02-12T23:22:36.839Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add a new, visually distinct button labeled \"⚙️ Settings\" to the Admin Dashboard main action area (the same grid/list area where the existing admin actions like \"Job Posts\" and \"📢 Manage Quiz\" are accessed). The button must use a grey/black styling so it is clearly different from the other admin action buttons.",
+        "summary": "Change the Admin Panel access UX so clicking the \"Admin Panel\" tab never immediately shows an \"Access Denied\" screen; instead, it must immediately open a popup/modal that asks the user to enter an admin password.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/admin/AdminDashboardPage.tsx"
+          "frontend/src/components/auth/AdminPasswordRequiredScreen.tsx",
+          "frontend/src/components/RootLayout.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/admin/AdminDashboardPage.tsx"
+          "frontend/src/components/auth/AdminPasswordRequiredScreen.tsx",
+          "frontend/src/components/RootLayout.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Implement a Settings modal (popup) in the Admin Dashboard that opens when the \"⚙️ Settings\" button is clicked. The modal must contain a simple form with: (1) a labeled password input field with label text \"Gemini API Key\" (input type=password so the value is hidden), and (2) a button labeled \"Save Settings\".",
+        "summary": "Implement client-side admin authentication using the exact password string \"@ni#ra&j*gurja:r\" and store the session flag using localStorage.setItem('isAdmin','true') on successful login; if the password is incorrect, show an alert with the exact text \"Wrong Password!\".",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/admin/AdminSettingsDialog.tsx",
-          "frontend/src/pages/admin/AdminDashboardPage.tsx"
+          "frontend/src/hooks/useClientAdminAuth.ts",
+          "frontend/src/components/auth/AdminPasswordGateModal.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/admin/AdminSettingsDialog.tsx",
-          "frontend/src/pages/admin/AdminDashboardPage.tsx"
+          "frontend/src/hooks/useClientAdminAuth.ts",
+          "frontend/src/components/auth/AdminPasswordGateModal.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "When the user clicks \"Save Settings\" in the Admin Dashboard Settings modal, store the entered API key value (trimmed) in browser Local Storage under the key \"gemini_api_key\". After saving, show a success message exactly: \"API Key Saved Successfully! ✅\".",
+        "summary": "Add persistence on page load for the Admin Panel: if localStorage 'isAdmin' is the string 'true', show the Admin Panel dashboard directly; otherwise show the login modal.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/admin/AdminSettingsDialog.tsx"
+          "frontend/src/hooks/useClientAdminAuth.ts",
+          "frontend/src/components/auth/AdminRouteGuard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/admin/AdminSettingsDialog.tsx"
+          "frontend/src/hooks/useClientAdminAuth.ts"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "After successful login, reveal the Admin Panel dashboard actions (including \"Job Posts\", \"Quiz\", and \"Settings\") and add a small \"Logout\" button in the top-right of the Admin Panel that clears the admin session by removing/resetting localStorage 'isAdmin' and returns the Admin Panel to the locked state (login modal shown on next view).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "frontend/src/components/auth/AdminPasswordGateModal.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "frontend/src/components/auth/AdminPasswordGateModal.tsx"
         ]
       }
     ]
@@ -52,7 +68,10 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/admin/AdminSettingsDialog.tsx",
+    "frontend/src/components/RootLayout.tsx",
+    "frontend/src/components/auth/AdminPasswordGateModal.tsx",
+    "frontend/src/components/auth/AdminPasswordRequiredScreen.tsx",
+    "frontend/src/hooks/useClientAdminAuth.ts",
     "frontend/src/pages/admin/AdminDashboardPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
