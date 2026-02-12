@@ -1,51 +1,60 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Update Client Admin password validation (special characters + case sensitivity)",
+  "title": "Admin Dashboard Settings modal for Gemini API key (localStorage)",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Replace the hardcoded Client Admin password with the new strong password string.",
+      "summary": "Add a visually distinct grey/black “⚙️ Settings” button to the Admin Dashboard main action area and wire it to open the Settings modal.",
       "acceptanceCriteria": [
-        "In frontend/src/hooks/useClientAdminAuth.ts, the hardcoded admin password is replaced with exactly \"@ni#ra&j*gurja:r\".",
-        "Entering \"@ni#ra&j*gurja:r\" in the Client Admin login successfully unlocks and displays the admin panel/dashboard UI.",
-        "Entering any other password does not unlock the admin panel/dashboard UI and shows the existing error message."
+        "Admin Dashboard shows a new button labeled \"⚙️ Settings\" alongside the existing admin action entries.",
+        "The \"⚙️ Settings\" button has grey/black styling distinct from the other buttons/tabs.",
+        "Clicking the button triggers opening the Settings popup/modal (see REQ-2)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useClientAdminAuth.ts",
+          "path": "frontend/src/pages/admin/AdminDashboardPage.tsx",
           "operation": "modify",
-          "description": "Update the CORRECT_PASSWORD constant to exactly \"@ni#ra&j*gurja:r\" and ensure the login comparison continues to use an exact match."
+          "description": "Add a new grey/black styled \"⚙️ Settings\" button in the same action area as the existing admin actions (TabsList). Wire it to open the Settings modal via local component state, and render the modal component within this page so it is not orphaned. Use shadcn-ui composed components (e.g., Button) without modifying files under frontend/src/components/ui. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Ensure the Client Admin password input accepts special characters and passes the raw value unchanged to authentication.",
+      "summary": "Implement a Settings modal in Admin Dashboard with a password-masked “Gemini API Key” field and “Save Settings” button, prefilled from localStorage.",
       "acceptanceCriteria": [
-        "The password input field in frontend/src/pages/ClientAdminPage.tsx allows typing and pasting special characters (@, #, &, *, :) without validation errors or character stripping.",
-        "The value passed into useClientAdminAuth.login() matches exactly what the user typed (no trimming, sanitizing, or normalization that would remove/alter these characters)."
+        "Clicking \"⚙️ Settings\" opens a modal dialog.",
+        "Modal contains a form field labeled \"Gemini API Key\" and the input uses password masking.",
+        "Modal contains a primary action button labeled \"Save Settings\".",
+        "If a value already exists in localStorage under \"gemini_api_key\", the field is prefilled with that value when opening the modal."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/ClientAdminPage.tsx",
+          "path": "frontend/src/components/admin/AdminSettingsDialog.tsx",
+          "operation": "create",
+          "description": "Create an Admin Settings modal component using composed shadcn-ui Dialog/DialogContent/DialogHeader/DialogTitle, Label, Input (type=\"password\"), and Button. Accept controlled props (open, onOpenChange) from the Admin Dashboard page. When the modal opens, prefill the input value from localStorage key \"gemini_api_key\". Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/admin/AdminDashboardPage.tsx",
           "operation": "modify",
-          "description": "Ensure the password field remains a plain controlled input (no pattern/minLength validation, no trimming/sanitization in onChange or submit). Confirm handleSubmit passes the password state directly into onLogin(password) unchanged."
+          "description": "Import and render the new AdminSettingsDialog component and connect it to the Settings button click/open state so the modal opens and closes correctly. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Keep Client Admin password authentication strictly case-sensitive with exact string matching.",
+      "summary": "Save the trimmed Gemini API key to localStorage and show exact success message after saving from the Settings modal.",
       "acceptanceCriteria": [
-        "\"@ni#ra&j*gurja:r\" unlocks the admin panel/dashboard, while any variant with different letter casing does not unlock it.",
-        "Authentication uses an exact string match (no case folding, no locale-based normalization)."
+        "Clicking \"Save Settings\" writes the trimmed API key to localStorage key \"gemini_api_key\".",
+        "A visible success notification/message appears with exact text: \"API Key Saved Successfully! ✅\".",
+        "After saving, reopening the Settings modal shows the saved key value still present (read back from localStorage).",
+        "No backend changes are required for saving; it is purely localStorage-based."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useClientAdminAuth.ts",
+          "path": "frontend/src/components/admin/AdminSettingsDialog.tsx",
           "operation": "modify",
-          "description": "Verify and preserve strict case-sensitive exact string comparison for the password check (no lowercasing/uppercasing/normalization); keep password equality as a direct string match."
+          "description": "Implement the Save Settings action: take the current input value, trim it, persist to browser localStorage under the exact key \"gemini_api_key\", and show a success toast/message with exact text \"API Key Saved Successfully! ✅\" (use the existing toast pattern already used in admin pages, e.g., sonner). Ensure reopening the modal re-reads the saved value for prefill. Verify the component's usage instructions before implementing."
         }
       ]
     }

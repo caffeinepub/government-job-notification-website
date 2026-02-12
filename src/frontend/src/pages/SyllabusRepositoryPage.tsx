@@ -2,9 +2,18 @@ import { useSyllabusRepository } from '../hooks/useSyllabusRepository';
 import { FileText, Download, ExternalLink } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { getLinkStatus } from '../utils/linkAvailability';
+import { useJobSearch } from '../contexts/JobSearchContext';
 
 export default function SyllabusRepositoryPage() {
   const { data: posts, isLoading, error } = useSyllabusRepository();
+  const { searchQuery } = useJobSearch();
+
+  // Apply search filter
+  let filteredPosts = posts || [];
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase();
+    filteredPosts = filteredPosts.filter((post) => post.name.toLowerCase().includes(query));
+  }
 
   if (isLoading) {
     return (
@@ -54,14 +63,16 @@ export default function SyllabusRepositoryPage() {
           Download syllabus PDFs directly without opening the full job post
         </p>
 
-        {!posts || posts.length === 0 ? (
+        {filteredPosts.length === 0 ? (
           <div className="bg-card border border-border rounded-sm p-8 text-center">
             <FileText className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-            <p className="text-muted-foreground">No syllabus available at the moment.</p>
+            <p className="text-muted-foreground">
+              {searchQuery.trim() ? 'No matching syllabus found.' : 'No syllabus available at the moment.'}
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
-            {posts.map((post) => {
+            {filteredPosts.map((post) => {
               const syllabusStatus = getLinkStatus(post.syllabusUrl);
               
               return (

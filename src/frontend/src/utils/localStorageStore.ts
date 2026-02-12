@@ -27,7 +27,8 @@ class LocalStorageStore {
       key === 'studyCorner' ||
       key === 'simpleJobs' ||
       key === 'clientAdminAuth' ||
-      key === 'homeCards'
+      key === 'homeCards' ||
+      key === 'dailyQuiz'
     );
   }
 

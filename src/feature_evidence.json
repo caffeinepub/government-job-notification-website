@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-client-admin-login-to-use-the-new-strong-password-exactly-as-provided-ni-ra-j-gurja-r-replacing-the-current-simple-password",
-      "featureTitle": "Update the Client Admin login to use the new strong password exactly as provided: \"@ni#ra&j*gurja:r\" (replacing the current simple password).",
+      "featureId": "feature-add-a-new-visually-distinct-button-labeled-settings-to-the-admin-dashboard-main-action-area-the-same-grid-list-area-where-the-existing-admin-actions-like-job-posts-and-manage-quiz-are-accessed-the-button-must-use-a-grey-black-styling-so-it-is-clearly-different-from-the-other-admin-action-buttons",
+      "featureTitle": "Add a new, visually distinct button labeled \"⚙️ Settings\" to the Admin Dashboard main action area (the same grid/list area where the existing admin actions like \"Job Posts\" and \"📢 Manage Quiz\" are accessed). The button must use a grey/black styling so it is clearly different from the other admin action buttons.",
       "files": [
-        "frontend/src/hooks/useClientAdminAuth.ts"
+        "frontend/src/pages/admin/AdminDashboardPage.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -21,10 +21,30 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-ensure-client-admin-password-authentication-remains-strictly-case-sensitive-so-that-uppercase-lowercase-letters-must-match-exactly-to-unlock-the-admin-panel-dashboard",
-      "featureTitle": "Ensure Client Admin password authentication remains strictly case-sensitive so that uppercase/lowercase letters must match exactly to unlock the admin panel/dashboard.",
+      "featureId": "feature-implement-a-settings-modal-popup-in-the-admin-dashboard-that-opens-when-the-settings-button-is-clicked-the-modal-must-contain-a-simple-form-with-1-a-labeled-password-input-field-with-label-text-gemini-api-key-input-type-password-so-the-value-is-hidden-and-2-a-button-labeled-save-settings",
+      "featureTitle": "Implement a Settings modal (popup) in the Admin Dashboard that opens when the \"⚙️ Settings\" button is clicked. The modal must contain a simple form with: (1) a labeled password input field with label text \"Gemini API Key\" (input type=password so the value is hidden), and (2) a button labeled \"Save Settings\".",
       "files": [
-        "frontend/src/hooks/useClientAdminAuth.ts"
+        "frontend/src/components/admin/AdminSettingsDialog.tsx",
+        "frontend/src/pages/admin/AdminDashboardPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-when-the-user-clicks-save-settings-in-the-admin-dashboard-settings-modal-store-the-entered-api-key-value-trimmed-in-browser-local-storage-under-the-key-gemini-api-key-after-saving-show-a-success-message-exactly-api-key-saved-successfully",
+      "featureTitle": "When the user clicks \"Save Settings\" in the Admin Dashboard Settings modal, store the entered API key value (trimmed) in browser Local Storage under the key \"gemini_api_key\". After saving, show a success message exactly: \"API Key Saved Successfully! ✅\".",
+      "files": [
+        "frontend/src/components/admin/AdminSettingsDialog.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",

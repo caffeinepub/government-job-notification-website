@@ -1,81 +1,77 @@
 {
   "kind": "build_request",
-  "title": "Update client admin login password and ensure special-character, case-sensitive validation",
+  "title": "Add Admin Dashboard Settings modal to store Gemini API key in localStorage",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the Client Admin login to use the new strong password exactly as provided: \"@ni#ra&j*gurja:r\" (replacing the current simple password).",
+      "text": "Add a new, visually distinct button labeled \"⚙️ Settings\" to the Admin Dashboard main action area (the same grid/list area where the existing admin actions like \"Job Posts\" and \"📢 Manage Quiz\" are accessed). The button must use a grey/black styling so it is clearly different from the other admin action buttons.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4"
         ],
         "quotes": [
-          "Replace the current simple password with this specific new strong password: @ni#ra&j*gurja:r"
+          "Inside the Admin Dashboard grid (where 'Job Posts' and 'Manage Quiz' buttons are), add a new button labeled '⚙️ Settings'. Make it distinct (e.g., Grey or Black color)."
         ]
       },
       "acceptanceCriteria": [
-        "In frontend/src/hooks/useClientAdminAuth.ts, the hardcoded admin password is replaced with exactly \"@ni#ra&j*gurja:r\".",
-        "Entering \"@ni#ra&j*gurja:r\" in the Client Admin login successfully unlocks and displays the admin panel/dashboard UI.",
-        "Entering any other password does not unlock the admin panel/dashboard UI and shows the existing error message."
+        "Admin Dashboard shows a new button labeled \"⚙️ Settings\" alongside the existing admin action entries.",
+        "The \"⚙️ Settings\" button has grey/black styling distinct from the other buttons/tabs.",
+        "Clicking the button triggers opening the Settings popup/modal (see REQ-2)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Ensure the Client Admin login password input accepts special characters (including @, #, &, *, and :) and submits them unchanged for authentication comparison.",
+      "text": "Implement a Settings modal (popup) in the Admin Dashboard that opens when the \"⚙️ Settings\" button is clicked. The modal must contain a simple form with: (1) a labeled password input field with label text \"Gemini API Key\" (input type=password so the value is hidden), and (2) a button labeled \"Save Settings\".",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4"
         ],
         "quotes": [
-          "Ensure the login input field accepts special characters like @, #, &, *, and : without any errors."
+          "When I click the 'Settings' button, open a simple popup form. Input Field: Label it 'Gemini API Key'. Make it a password field (dots) so the key is hidden. Save Button: Add a 'Save Settings' button."
         ]
       },
       "acceptanceCriteria": [
-        "The password input field in frontend/src/pages/ClientAdminPage.tsx allows typing and pasting special characters (@, #, &, *, :) without validation errors or character stripping.",
-        "The value passed into useClientAdminAuth.login() matches exactly what the user typed (no trimming, sanitizing, or normalization that would remove/alter these characters)."
+        "Clicking \"⚙️ Settings\" opens a modal dialog.",
+        "Modal contains a form field labeled \"Gemini API Key\" and the input uses password masking.",
+        "Modal contains a primary action button labeled \"Save Settings\".",
+        "If a value already exists in localStorage under \"gemini_api_key\", the field is prefilled with that value when opening the modal."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Ensure Client Admin password authentication remains strictly case-sensitive so that uppercase/lowercase letters must match exactly to unlock the admin panel/dashboard.",
+      "text": "When the user clicks \"Save Settings\" in the Admin Dashboard Settings modal, store the entered API key value (trimmed) in browser Local Storage under the key \"gemini_api_key\". After saving, show a success message exactly: \"API Key Saved Successfully! ✅\".",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4"
         ],
         "quotes": [
-          "Make sure the password logic is case-sensitive (capital and small letters must match exactly)."
+          "When I click 'Save', store the Key in Local Storage as gemini_api_key. Show a message: 'API Key Saved Successfully! ✅'. This key will be used by the Chatbot."
         ]
       },
       "acceptanceCriteria": [
-        "\"@ni#ra&j*gurja:r\" unlocks the admin panel/dashboard, while any variant with different letter casing does not unlock it.",
-        "Authentication uses an exact string match (no case folding, no locale-based normalization)."
+        "Clicking \"Save Settings\" writes the trimmed API key to localStorage key \"gemini_api_key\".",
+        "A visible success notification/message appears with exact text: \"API Key Saved Successfully! ✅\".",
+        "After saving, reopening the Settings modal shows the saved key value still present (read back from localStorage).",
+        "No backend changes are required for saving; it is purely localStorage-based."
       ]
     }
   ],
   "constraints": [
-    "Do not edit any files under frontend/src/components/ui or other immutable paths listed in SYSTEM_CONTEXT.",
-    "Use English for any user-facing text (e.g., validation/error messages)."
+    "Do not modify any files under frontend/src/components/ui (shadcn components are read-only and must be composed).",
+    "Do not modify frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, or frontend/src/main.tsx (immutable paths).",
+    "Persist the API key only in browser localStorage under the exact key name \"gemini_api_key\"."
   ],
   "nonGoals": [
-    "Do not add or change Internet Identity / backend admin authorization (backend isAdmin) flows for this request.",
-    "Do not redesign the admin panel UI beyond what is required to accept and validate the new password."
+    "Do not store the Gemini API key in the Motoko backend canister or any server-side storage.",
+    "Do not add third-party authentication or external secret management.",
+    "Do not change the chatbot prompt/content behavior beyond ensuring it can read the key from localStorage (it already uses \"gemini_api_key\")."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

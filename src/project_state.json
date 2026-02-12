@@ -1,26 +1,32 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project includes an Admin Login with security settings needing an updated strong password, special-character input support, and case-sensitive authentication to unlock the Admin Dashboard.",
+  "summary": "Project now includes an Admin Dashboard with a Settings section for configuring the Gemini API key used by the chatbot.",
   "architectural_notes": [
-    "Admin Login authentication must be case-sensitive and accept special characters in the password input without errors."
+    "Store Gemini API key client-side in Local Storage under key 'gemini_api_key' and use it for chatbot API calls."
   ],
-  "known_issues": [
-    "Hardcoding or storing the admin password in plaintext is a security risk; prefer secure hashing/secret storage even if the password value is specified."
-  ],
+  "known_issues": [],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-the-client-admin-login-to-use-the-new-strong-password-exactly-as-provided-ni-ra-j-gurja-r-replacing-the-current-simple-password",
-      "title": "Update the Client Admin login to use the new strong password exactly as provided: \"@ni#ra&j*gurja:r\" (replacing the current simple password).",
+      "id": "feature-add-a-new-visually-distinct-button-labeled-settings-to-the-admin-dashboard-main-action-area-the-same-grid-list-area-where-the-existing-admin-actions-like-job-posts-and-manage-quiz-are-accessed-the-button-must-use-a-grey-black-styling-so-it-is-clearly-different-from-the-other-admin-action-buttons",
+      "title": "Add a new, visually distinct button labeled \"⚙️ Settings\" to the Admin Dashboard main action area (the same grid/list area where the existing admin actions like \"Job Posts\" and \"📢 Manage Quiz\" are accessed). The button must use a grey/black styling so it is clearly different from the other admin action buttons.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-ensure-client-admin-password-authentication-remains-strictly-case-sensitive-so-that-uppercase-lowercase-letters-must-match-exactly-to-unlock-the-admin-panel-dashboard",
-      "title": "Ensure Client Admin password authentication remains strictly case-sensitive so that uppercase/lowercase letters must match exactly to unlock the admin panel/dashboard.",
+      "id": "feature-implement-a-settings-modal-popup-in-the-admin-dashboard-that-opens-when-the-settings-button-is-clicked-the-modal-must-contain-a-simple-form-with-1-a-labeled-password-input-field-with-label-text-gemini-api-key-input-type-password-so-the-value-is-hidden-and-2-a-button-labeled-save-settings",
+      "title": "Implement a Settings modal (popup) in the Admin Dashboard that opens when the \"⚙️ Settings\" button is clicked. The modal must contain a simple form with: (1) a labeled password input field with label text \"Gemini API Key\" (input type=password so the value is hidden), and (2) a button labeled \"Save Settings\".",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-when-the-user-clicks-save-settings-in-the-admin-dashboard-settings-modal-store-the-entered-api-key-value-trimmed-in-browser-local-storage-under-the-key-gemini-api-key-after-saving-show-a-success-message-exactly-api-key-saved-successfully",
+      "title": "When the user clicks \"Save Settings\" in the Admin Dashboard Settings modal, store the entered API key value (trimmed) in browser Local Storage under the key \"gemini_api_key\". After saving, show a success message exactly: \"API Key Saved Successfully! ✅\".",
       "reqIds": [
         "REQ-3"
       ],
@@ -30,20 +36,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Update Admin Login password to '@ni#ra&j*gurja:r' and ensure case-sensitive validation; allow special characters (@, #, &, *, :) so correct entry unlocks Admin Dashboard",
+      "summary": "Add Admin Dashboard '⚙️ Settings' button that opens a modal to save Gemini API Key (password field) to localStorage as gemini_api_key with success message",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Ensure the Client Admin login password input accepts special characters (including @, #, &, *, and :) and submits them unchanged for authentication comparison.",
-      "reqIds": [
-        "REQ-2"
-      ],
       "status": "pending"
     }
   ],
-  "projectName": "Update client admin login password and ensure special-character, case-sensitive validation",
+  "projectName": "Add Admin Dashboard Settings modal to store Gemini API key in localStorage",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

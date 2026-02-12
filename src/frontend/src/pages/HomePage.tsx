@@ -8,6 +8,24 @@ import { StudyCornerSection } from '../components/home/StudyCornerSection';
 import { SimpleJobsSection } from '../components/home/SimpleJobsSection';
 import { VerticalTickerList } from '../components/home/VerticalTickerList';
 import { PreparationResourcesSection } from '../components/home/PreparationResourcesSection';
+import DailyQuizSection from '../components/home/DailyQuizSection';
+import { useJobSearch } from '../contexts/JobSearchContext';
+
+type BackendItem = {
+  type: 'backend';
+  id: string;
+  post: any;
+  index: number;
+};
+
+type FallbackItem = {
+  type: 'fallback';
+  id: string;
+  item: any;
+  index: number;
+};
+
+type JobItem = BackendItem | FallbackItem;
 
 function CategorySection({ 
   title, 
@@ -20,6 +38,7 @@ function CategorySection({
 }) {
   const { data: posts, isLoading, error } = useJobPosts(category);
   const { items: homeCardItems } = useHomeCards();
+  const { searchQuery } = useJobSearch();
 
   // Filter home card items by category
   const categoryKey = category === Category.latestJobs ? 'latestJobs' 
@@ -28,7 +47,7 @@ function CategorySection({
   const fallbackItems = homeCardItems.filter(item => item.category === categoryKey);
 
   // Combine backend posts and fallback items for rendering
-  const allItems = posts && posts.length > 0 
+  let allItems: JobItem[] = posts && posts.length > 0 
     ? posts.map((post, index) => ({
         type: 'backend' as const,
         id: post.id.toString(),
@@ -41,6 +60,18 @@ function CategorySection({
         item,
         index,
       }));
+
+  // Apply search filter
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase();
+    allItems = allItems.filter((item): item is JobItem => {
+      if (item.type === 'backend') {
+        return item.post.name.toLowerCase().includes(query);
+      } else {
+        return item.item.title.toLowerCase().includes(query);
+      }
+    });
+  }
 
   return (
     <div className="bg-card border border-border rounded-sm">
@@ -71,7 +102,7 @@ function CategorySection({
         
         {!isLoading && !error && allItems.length === 0 && (
           <div className="p-4 text-sm text-muted-foreground text-center">
-            No posts available at the moment.
+            {searchQuery.trim() ? 'No matching posts found.' : 'No posts available at the moment.'}
           </div>
         )}
         
@@ -167,8 +198,13 @@ function CategorySection({
 
 export default function HomePage() {
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div className="container mx-auto px-4 py-8">
+      {/* Daily Quiz Section with anchor */}
+      <div id="daily-quiz" className="mb-8 scroll-mt-20">
+        <DailyQuizSection />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
         {/* Main content - Job categories */}
         <div className="lg:col-span-3 space-y-6">
           {/* Simple Jobs Section */}
@@ -201,10 +237,12 @@ export default function HomePage() {
       </div>
 
       {/* Preparation & Resources Section */}
-      <PreparationResourcesSection />
+      <div className="mb-8">
+        <PreparationResourcesSection />
+      </div>
 
-      {/* Study Corner Section */}
-      <div className="mt-6">
+      {/* Study Corner Section with anchor */}
+      <div id="study-material" className="scroll-mt-20">
         <StudyCornerSection />
       </div>
     </div>

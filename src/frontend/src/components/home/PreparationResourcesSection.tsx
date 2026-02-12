@@ -1,8 +1,11 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Video, ClipboardCheck } from 'lucide-react';
+import { usePreparationResources } from '../../hooks/usePreparationResources';
 
 export function PreparationResourcesSection() {
+  const { books, testSeries } = usePreparationResources();
+
   return (
     <section className="mt-8 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-lg p-6 border border-blue-200 dark:border-blue-800">
       <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
@@ -20,41 +23,20 @@ export function PreparationResourcesSection() {
           </CardHeader>
           <CardContent className="pt-4">
             <div className="space-y-3">
-              <a
-                href="https://education.rajasthan.gov.in/content/raj/education/en/home.html"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block p-3 rounded hover:bg-accent transition-colors border border-border"
-              >
-                <div className="font-semibold text-sm text-foreground">RBSE Books</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Rajasthan Board textbooks and study materials
-                </div>
-              </a>
-              
-              <a
-                href="https://ncert.nic.in/textbook.php"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block p-3 rounded hover:bg-accent transition-colors border border-border"
-              >
-                <div className="font-semibold text-sm text-foreground">NCERT Books</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  National Council textbooks for all classes
-                </div>
-              </a>
-              
-              <a
-                href="https://www.hindigranthaacademy.org/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block p-3 rounded hover:bg-accent transition-colors border border-border"
-              >
-                <div className="font-semibold text-sm text-foreground">Hindi Granth Academy</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Hindi literature and reference books
-                </div>
-              </a>
+              {books.map((book) => (
+                <a
+                  key={book.id}
+                  href={book.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block p-3 rounded hover:bg-accent transition-colors border border-border"
+                >
+                  <div className="font-semibold text-sm text-foreground">{book.title}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {book.description}
+                  </div>
+                </a>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -121,41 +103,20 @@ export function PreparationResourcesSection() {
           </CardHeader>
           <CardContent className="pt-4">
             <div className="space-y-3">
-              <a
-                href="https://testbook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block p-3 rounded hover:bg-accent transition-colors border border-border"
-              >
-                <div className="font-semibold text-sm text-foreground">Testbook</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Mock tests for all government exams
-                </div>
-              </a>
-              
-              <a
-                href="https://www.adda247.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block p-3 rounded hover:bg-accent transition-colors border border-border"
-              >
-                <div className="font-semibold text-sm text-foreground">Adda247</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Practice tests and quizzes
-                </div>
-              </a>
-              
-              <a
-                href="https://gradeup.co"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block p-3 rounded hover:bg-accent transition-colors border border-border"
-              >
-                <div className="font-semibold text-sm text-foreground">GradeUp</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Free and paid mock test series
-                </div>
-              </a>
+              {testSeries.map((series) => (
+                <a
+                  key={series.id}
+                  href={series.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block p-3 rounded hover:bg-accent transition-colors border border-border"
+                >
+                  <div className="font-semibold text-sm text-foreground">{series.title}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {series.description}
+                  </div>
+                </a>
+              ))}
             </div>
           </CardContent>
         </Card>

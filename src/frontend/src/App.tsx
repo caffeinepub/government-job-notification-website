@@ -3,10 +3,12 @@ import HomePage from './pages/HomePage';
 import PostDetailPage from './pages/PostDetailPage';
 import SyllabusRepositoryPage from './pages/SyllabusRepositoryPage';
 import AdmitCardHallPage from './pages/AdmitCardHallPage';
+import CheckYourAgePage from './pages/CheckYourAgePage';
 import AdminPostsPage from './pages/admin/AdminPostsPage';
 import AdminEditJobPostPage from './pages/admin/AdminEditJobPostPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import ClientAdminPage from './pages/ClientAdminPage';
+import AdminRouteGuard from './components/auth/AdminRouteGuard';
 import { RootLayout } from './components/RootLayout';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
@@ -43,36 +45,63 @@ const admitCardRoute = createRoute({
   component: AdmitCardHallPage,
 });
 
-// Admin routes (Internet Identity protected)
+// Check Your Age route
+const checkYourAgeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/check-your-age',
+  component: CheckYourAgePage,
+});
+
+// Admin routes (Internet Identity protected with AdminRouteGuard)
 const adminDashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin/dashboard',
-  component: AdminDashboardPage,
+  component: () => (
+    <AdminRouteGuard>
+      <AdminDashboardPage />
+    </AdminRouteGuard>
+  ),
 });
 
 // Admin route alias
 const adminRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin',
-  component: AdminDashboardPage,
+  component: () => (
+    <AdminRouteGuard>
+      <AdminDashboardPage />
+    </AdminRouteGuard>
+  ),
 });
 
 const adminPostsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin/posts',
-  component: AdminPostsPage,
+  component: () => (
+    <AdminRouteGuard>
+      <AdminPostsPage />
+    </AdminRouteGuard>
+  ),
 });
 
 const adminNewPostRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin/posts/new',
-  component: AdminEditJobPostPage,
+  component: () => (
+    <AdminRouteGuard>
+      <AdminEditJobPostPage />
+    </AdminRouteGuard>
+  ),
 });
 
 const adminEditPostRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin/posts/$postId/edit',
-  component: AdminEditJobPostPage,
+  component: () => (
+    <AdminRouteGuard>
+      <AdminEditJobPostPage />
+    </AdminRouteGuard>
+  ),
 });
 
 // Client-side admin route (password protected)
@@ -88,6 +117,7 @@ const routeTree = rootRoute.addChildren([
   postRoute,
   syllabusRoute,
   admitCardRoute,
+  checkYourAgeRoute,
   adminDashboardRoute,
   adminRoute,
   adminPostsRoute,

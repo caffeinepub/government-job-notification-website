@@ -1,44 +1,48 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T08:32:42.978Z",
+  "generatedAt": "2026-02-12T16:34:07.948Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 3,
-    "implemented": 2,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update the Client Admin login to use the new strong password exactly as provided: \"@ni#ra&j*gurja:r\" (replacing the current simple password).",
+        "summary": "Add a new, visually distinct button labeled \"⚙️ Settings\" to the Admin Dashboard main action area (the same grid/list area where the existing admin actions like \"Job Posts\" and \"📢 Manage Quiz\" are accessed). The button must use a grey/black styling so it is clearly different from the other admin action buttons.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useClientAdminAuth.ts"
+          "frontend/src/pages/admin/AdminDashboardPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useClientAdminAuth.ts"
+          "frontend/src/pages/admin/AdminDashboardPage.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Ensure the Client Admin login password input accepts special characters (including @, #, &, *, and :) and submits them unchanged for authentication comparison.",
-        "status": "missing",
+        "summary": "Implement a Settings modal (popup) in the Admin Dashboard that opens when the \"⚙️ Settings\" button is clicked. The modal must contain a simple form with: (1) a labeled password input field with label text \"Gemini API Key\" (input type=password so the value is hidden), and (2) a button labeled \"Save Settings\".",
+        "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/ClientAdminPage.tsx"
+          "frontend/src/components/admin/AdminSettingsDialog.tsx",
+          "frontend/src/pages/admin/AdminDashboardPage.tsx"
         ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/src/components/admin/AdminSettingsDialog.tsx",
+          "frontend/src/pages/admin/AdminDashboardPage.tsx"
+        ]
       },
       {
         "id": "REQ-3",
-        "summary": "Ensure Client Admin password authentication remains strictly case-sensitive so that uppercase/lowercase letters must match exactly to unlock the admin panel/dashboard.",
+        "summary": "When the user clicks \"Save Settings\" in the Admin Dashboard Settings modal, store the entered API key value (trimmed) in browser Local Storage under the key \"gemini_api_key\". After saving, show a success message exactly: \"API Key Saved Successfully! ✅\".",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useClientAdminAuth.ts"
+          "frontend/src/components/admin/AdminSettingsDialog.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useClientAdminAuth.ts"
+          "frontend/src/components/admin/AdminSettingsDialog.tsx"
         ]
       }
     ]
@@ -48,7 +52,8 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/hooks/useClientAdminAuth.ts",
+    "frontend/src/components/admin/AdminSettingsDialog.tsx",
+    "frontend/src/pages/admin/AdminDashboardPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
