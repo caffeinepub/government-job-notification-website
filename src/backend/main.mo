@@ -1,15 +1,17 @@
 import Array "mo:core/Array";
+import Nat "mo:core/Nat";
 import Map "mo:core/Map";
 import Text "mo:core/Text";
 import Iter "mo:core/Iter";
-import Nat "mo:core/Nat";
-import Runtime "mo:core/Runtime";
 import Order "mo:core/Order";
+import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   type JobId = Nat;
   type Category = {
@@ -109,9 +111,21 @@ actor {
   var nextId = 0;
   var nextSchemeId = 21;
 
+  var isAccessControlInitialized = false;
   let accessControlState = AccessControl.initState();
+
   include MixinAuthorization(accessControlState);
+
   let userProfiles = Map.empty<Principal, UserProfile>();
+
+  // Admin Initialization (One-time only, strictly controlled)
+  public shared ({ caller }) func initializeAccessControl(adminToken : Text, userProvidedToken : Text) : async () {
+    if (isAccessControlInitialized) {
+      Runtime.trap("Access control already initialized. Admin bootstrap is locked.");
+    };
+    AccessControl.initialize(accessControlState, caller, adminToken, userProvidedToken);
+    isAccessControlInitialized := true;
+  };
 
   // User Profile Management
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
@@ -139,7 +153,6 @@ actor {
     AccessControl.isAdmin(accessControlState, caller);
   };
 
-  // Job Post CRUD Functions
   public shared ({ caller }) func addJobPost(
     name : Text,
     posterImage : ?Text,

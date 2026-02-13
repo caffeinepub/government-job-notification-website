@@ -106,6 +106,7 @@ export interface _SERVICE {
   'getSchemesCount' : ActorMethod<[], bigint>,
   'getSyllabusRepository' : ActorMethod<[], Array<JobPost>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'initializeAccessControl' : ActorMethod<[string, string], undefined>,
   'isAdmin' : ActorMethod<[], boolean>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,

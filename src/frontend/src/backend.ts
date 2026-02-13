@@ -201,6 +201,7 @@ export interface backendInterface {
     getSchemesCount(): Promise<bigint>;
     getSyllabusRepository(): Promise<Array<JobPost>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    initializeAccessControl(adminToken: string, userProvidedToken: string): Promise<void>;
     isAdmin(): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
@@ -440,6 +441,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getUserProfile(arg0);
             return from_candid_opt_n35(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async initializeAccessControl(arg0: string, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.initializeAccessControl(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.initializeAccessControl(arg0, arg1);
+            return result;
         }
     }
     async isAdmin(): Promise<boolean> {

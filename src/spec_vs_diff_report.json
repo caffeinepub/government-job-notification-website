@@ -1,43 +1,28 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T23:41:44.134Z",
-  "summary": "The diff adds an inline, in-page Admin Login form and a localStorage-based unlock hook, and gates the AdminDashboardPage behind the unlock state. However, the AdminRouteGuard still renders an AccessDeniedScreen for unauthenticated/non-admin users, which likely keeps the blocking 'Access Denied' UI in the Admin Panel flow, conflicting with REQ-1/REQ-2 expectations.",
+  "generatedAt": "2026-02-13T00:01:39.627Z",
+  "summary": "REQ-1 and REQ-3 appear implemented via a dedicated admin-auth loading screen and an updated Access Denied UX. Backend changes add a one-time access control initialization path and persist an initialization flag via migration, but the diff does not clearly show an explicit post-bootstrap admin management API, nor does it document a testable bootstrap procedure or demonstrate that job post CRUD now succeeds for an admin.",
   "missing_requirements": [
     {
-      "id": "REQ-1",
-      "requirement": "Remove the red 'Access Denied' message UI from the Admin Panel flow so it no longer blocks access to the password input.",
-      "reason": "AdminRouteGuard still returns <AccessDeniedScreen ...> for both unauthenticated users and authenticated-but-not-admin users, so the access-denied screen can still render and block the Admin Panel unlock flow rather than showing the password input.",
+      "id": "REQ-2",
+      "requirement": "Add an explicit admin bootstrap/management API that can be invoked safely to grant admin to a principal, with strict access control to prevent privilege escalation (and provide a documented/testable way to bootstrap at least one admin after deployment).",
+      "reason": "The backend adds a one-time `initializeAccessControl` entrypoint and a migration flag (`isAccessControlInitialized`), but the diff does not show an explicit admin grant/management API (e.g., grant/revoke admin for a target principal) beyond one-time initialization, nor any documentation/instructions demonstrating a testable bootstrap flow. Additionally, the diff is truncated and does not provide evidence that admin-gated job post CRUD succeeds once admin is granted.",
       "evidence": [
-        "frontend/src/components/auth/AdminRouteGuard.tsx"
+        "backend/main.mo",
+        "backend/migration.mo"
       ]
     }
   ],
-  "hallucinated_features": [
-    {
-      "description": "Persisting an additional admin secret/token in sessionStorage via urlParams utilities (ADMIN_TOKEN_KEY = 'caffeineAdminToken') as part of the local unlock flow.",
-      "reason": "REQ-3 only specifies validating against the password and setting localStorage key 'isAdmin' to 'true' (and showing a browser alert on failure). Storing the password/secret elsewhere (sessionStorage) was not requested.",
-      "evidence": [
-        "frontend/src/hooks/useClientAdminAuth.ts"
-      ]
-    },
-    {
-      "description": "Gating the entire AdminDashboardPage content behind isUnlocked (showing only the login form until unlocked), rather than only hiding the specific 'Job Posts', 'Settings', and 'Manage Quiz' controls.",
-      "reason": "REQ-4 explicitly calls out hiding only those dashboard controls until unlocked, and the non-goals warn against changing the admin feature set beyond gating specified buttons/sections. The diff shows the whole page returns the login form when locked, which may hide more than requested.",
-      "evidence": [
-        "frontend/src/pages/admin/AdminDashboardPage.tsx"
-      ]
-    }
-  ],
-  "confidence": 0.68,
+  "hallucinated_features": [],
+  "confidence": 0.66,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/admin/AdminUnlockInlineForm.tsx",
-    "frontend/src/components/auth/AdminPasswordGateModal.tsx",
-    "frontend/src/components/auth/AdminPasswordRequiredScreen.tsx",
+    "frontend/src/components/auth/AccessDeniedScreen.tsx",
+    "frontend/src/components/auth/AdminAuthLoadingScreen.tsx",
     "frontend/src/components/auth/AdminRouteGuard.tsx",
-    "frontend/src/hooks/useClientAdminAuth.ts",
-    "frontend/src/pages/admin/AdminDashboardPage.tsx",
     "project_state.json"
   ]
 }

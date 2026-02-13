@@ -25,12 +25,20 @@ import { toast } from 'sonner';
 export default function AdminDashboardPage() {
   const { isUnlocked, logout } = useClientAdminAuth();
 
-  // If not unlocked, show the inline login form
-  if (!isUnlocked) {
-    return <AdminUnlockInlineForm />;
-  }
+  // Render both containers in the DOM at the same time
+  return (
+    <>
+      {/* Login form container - visible when not unlocked */}
+      <div id="login-form-container" style={{ display: isUnlocked ? 'none' : 'block' }}>
+        <AdminUnlockInlineForm />
+      </div>
 
-  return <AdminDashboardContent logout={logout} />;
+      {/* Dashboard container - visible when unlocked */}
+      <div id="admin-dashboard-grid" style={{ display: isUnlocked ? 'block' : 'none' }}>
+        <AdminDashboardContent logout={logout} />
+      </div>
+    </>
+  );
 }
 
 function AdminDashboardContent({ logout }: { logout: () => void }) {
@@ -416,24 +424,20 @@ function AdminDashboardContent({ logout }: { logout: () => void }) {
                 <DialogTitle>Add New Scheme</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="scheme-name">Scheme Name</Label>
                   <Input
                     id="scheme-name"
                     value={schemeForm.name}
-                    onChange={(e) =>
-                      setSchemeForm({ ...schemeForm, name: e.target.value })
-                    }
-                    placeholder="e.g., Mukhyamantri Chiranjeevi Yojana"
+                    onChange={(e) => setSchemeForm({ ...schemeForm, name: e.target.value })}
+                    placeholder="Enter scheme name"
                   />
                 </div>
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="scheme-category">Category</Label>
                   <Select
                     value={schemeForm.category}
-                    onValueChange={(value) =>
-                      setSchemeForm({ ...schemeForm, category: value })
-                    }
+                    onValueChange={(value) => setSchemeForm({ ...schemeForm, category: value })}
                   >
                     <SelectTrigger id="scheme-category">
                       <SelectValue />
@@ -444,14 +448,12 @@ function AdminDashboardContent({ logout }: { logout: () => void }) {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="scheme-link">Link (Optional)</Label>
                   <Input
                     id="scheme-link"
                     value={schemeForm.link}
-                    onChange={(e) =>
-                      setSchemeForm({ ...schemeForm, link: e.target.value })
-                    }
+                    onChange={(e) => setSchemeForm({ ...schemeForm, link: e.target.value })}
                     placeholder="https://example.com"
                   />
                 </div>
@@ -472,24 +474,20 @@ function AdminDashboardContent({ logout }: { logout: () => void }) {
                 <DialogTitle>Edit Scheme</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="edit-scheme-name">Scheme Name</Label>
                   <Input
                     id="edit-scheme-name"
                     value={schemeForm.name}
-                    onChange={(e) =>
-                      setSchemeForm({ ...schemeForm, name: e.target.value })
-                    }
-                    placeholder="e.g., Mukhyamantri Chiranjeevi Yojana"
+                    onChange={(e) => setSchemeForm({ ...schemeForm, name: e.target.value })}
+                    placeholder="Enter scheme name"
                   />
                 </div>
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="edit-scheme-category">Category</Label>
                   <Select
                     value={schemeForm.category}
-                    onValueChange={(value) =>
-                      setSchemeForm({ ...schemeForm, category: value })
-                    }
+                    onValueChange={(value) => setSchemeForm({ ...schemeForm, category: value })}
                   >
                     <SelectTrigger id="edit-scheme-category">
                       <SelectValue />
@@ -500,14 +498,12 @@ function AdminDashboardContent({ logout }: { logout: () => void }) {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="edit-scheme-link">Link (Optional)</Label>
                   <Input
                     id="edit-scheme-link"
                     value={schemeForm.link}
-                    onChange={(e) =>
-                      setSchemeForm({ ...schemeForm, link: e.target.value })
-                    }
+                    onChange={(e) => setSchemeForm({ ...schemeForm, link: e.target.value })}
                     placeholder="https://example.com"
                   />
                 </div>
@@ -544,448 +540,26 @@ function AdminDashboardContent({ logout }: { logout: () => void }) {
         <TabsContent value="settings" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Official Links</CardTitle>
+              <CardTitle>Settings</CardTitle>
               <CardDescription>
-                Manage quick access links displayed on the homepage
+                Configure application settings
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button onClick={() => setNewLinkDialog(true)} className="gap-2">
-                <Plus className="w-4 h-4" />
-                Add Link
-              </Button>
-              <div className="space-y-2">
-                {links.map((link) => (
-                  <div
-                    key={link.id}
-                    className="flex items-center justify-between p-3 border rounded-lg"
-                  >
-                    <div className="flex-1">
-                      <h4 className="font-medium">{link.label}</h4>
-                      <a
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-blue-600 hover:underline flex items-center gap-1"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                        {link.url}
-                      </a>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          setEditingLink(link.id);
-                          setLinkForm({ label: link.label, url: link.url });
-                        }}
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteLink(link.id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Study Corner</CardTitle>
-              <CardDescription>
-                Manage study material categories and items
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Button onClick={() => setNewCategoryDialog(true)} className="gap-2">
-                <Plus className="w-4 h-4" />
-                Add Category
-              </Button>
-              <div className="space-y-4">
-                {categories.map((category) => (
-                  <div key={category.id} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex-1">
-                        <h4 className="font-medium">{category.name}</h4>
-                        {category.description && (
-                          <p className="text-sm text-muted-foreground">{category.description}</p>
-                        )}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            setEditingCategory(category.id);
-                            setCategoryForm({
-                              name: category.name,
-                              description: category.description || '',
-                            });
-                          }}
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteCategory(category.id)}
-                        >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </div>
-                    <Separator className="my-3" />
-                    <div className="space-y-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setNewItemDialog(category.id)}
-                        className="gap-2"
-                      >
-                        <Plus className="w-3 h-3" />
-                        Add Item
-                      </Button>
-                      {category.items.map((item, index) => (
-                        <div
-                          key={item.id}
-                          className="flex items-center justify-between p-2 bg-muted/50 rounded"
-                        >
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              {item.type === 'pdf' ? (
-                                <FileText className="w-4 h-4" />
-                              ) : (
-                                <ExternalLink className="w-4 h-4" />
-                              )}
-                              <span className="text-sm">{item.title}</span>
-                            </div>
-                          </div>
-                          <div className="flex gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => moveItemInCategory(category.id, index, 'up')}
-                              disabled={index === 0}
-                            >
-                              <ArrowUp className="w-3 h-3" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => moveItemInCategory(category.id, index, 'down')}
-                              disabled={index === category.items.length - 1}
-                            >
-                              <ArrowDown className="w-3 h-3" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => {
-                                setEditingItem({ categoryId: category.id, itemId: item.id });
-                                setItemForm({
-                                  title: item.title,
-                                  url: item.url,
-                                  type: item.type,
-                                });
-                              }}
-                            >
-                              <Pencil className="w-3 h-3" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => handleDeleteItem(category.id, item.id)}
-                            >
-                              <Trash2 className="w-3 h-3 text-destructive" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>API Settings</CardTitle>
-              <CardDescription>
-                Configure API keys and other settings
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
               <Button onClick={() => setSettingsOpen(true)} className="gap-2">
                 <Settings className="w-4 h-4" />
-                Manage Settings
+                Manage Gemini API Key
               </Button>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
-      {/* Dialogs */}
-      <Dialog open={newLinkDialog} onOpenChange={setNewLinkDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New Link</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="link-label">Label</Label>
-              <Input
-                id="link-label"
-                value={linkForm.label}
-                onChange={(e) => setLinkForm({ ...linkForm, label: e.target.value })}
-                placeholder="e.g., SSO Login"
-              />
-            </div>
-            <div>
-              <Label htmlFor="link-url">URL</Label>
-              <Input
-                id="link-url"
-                value={linkForm.url}
-                onChange={(e) => setLinkForm({ ...linkForm, url: e.target.value })}
-                placeholder="https://example.com"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setNewLinkDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAddLink}>Add Link</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={!!editingLink} onOpenChange={(open) => !open && setEditingLink(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Link</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="edit-link-label">Label</Label>
-              <Input
-                id="edit-link-label"
-                value={linkForm.label}
-                onChange={(e) => setLinkForm({ ...linkForm, label: e.target.value })}
-                placeholder="e.g., SSO Login"
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-link-url">URL</Label>
-              <Input
-                id="edit-link-url"
-                value={linkForm.url}
-                onChange={(e) => setLinkForm({ ...linkForm, url: e.target.value })}
-                placeholder="https://example.com"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingLink(null)}>
-              Cancel
-            </Button>
-            <Button onClick={() => editingLink && handleUpdateLink(editingLink)}>
-              Update Link
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={newCategoryDialog} onOpenChange={setNewCategoryDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New Category</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="category-name">Category Name</Label>
-              <Input
-                id="category-name"
-                value={categoryForm.name}
-                onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
-                placeholder="e.g., Geography"
-              />
-            </div>
-            <div>
-              <Label htmlFor="category-description">Description (Optional)</Label>
-              <Textarea
-                id="category-description"
-                value={categoryForm.description}
-                onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
-                placeholder="Brief description of the category"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setNewCategoryDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAddCategory}>Add Category</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={!!editingCategory} onOpenChange={(open) => !open && setEditingCategory(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Category</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="edit-category-name">Category Name</Label>
-              <Input
-                id="edit-category-name"
-                value={categoryForm.name}
-                onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
-                placeholder="e.g., Geography"
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-category-description">Description (Optional)</Label>
-              <Textarea
-                id="edit-category-description"
-                value={categoryForm.description}
-                onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
-                placeholder="Brief description of the category"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingCategory(null)}>
-              Cancel
-            </Button>
-            <Button onClick={() => editingCategory && handleUpdateCategory(editingCategory)}>
-              Update Category
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={!!newItemDialog} onOpenChange={(open) => !open && setNewItemDialog(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New Item</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="item-title">Title</Label>
-              <Input
-                id="item-title"
-                value={itemForm.title}
-                onChange={(e) => setItemForm({ ...itemForm, title: e.target.value })}
-                placeholder="e.g., World Geography Notes"
-              />
-            </div>
-            <div>
-              <Label htmlFor="item-url">URL</Label>
-              <Input
-                id="item-url"
-                value={itemForm.url}
-                onChange={(e) => setItemForm({ ...itemForm, url: e.target.value })}
-                placeholder="https://example.com or #anchor"
-              />
-            </div>
-            <div>
-              <Label htmlFor="item-type">Type</Label>
-              <Select
-                value={itemForm.type}
-                onValueChange={(value: 'link' | 'pdf') => setItemForm({ ...itemForm, type: value })}
-              >
-                <SelectTrigger id="item-type">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="link">Link</SelectItem>
-                  <SelectItem value="pdf">PDF</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setNewItemDialog(null)}>
-              Cancel
-            </Button>
-            <Button onClick={() => newItemDialog && handleAddItem(newItemDialog)}>
-              Add Item
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Item</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="edit-item-title">Title</Label>
-              <Input
-                id="edit-item-title"
-                value={itemForm.title}
-                onChange={(e) => setItemForm({ ...itemForm, title: e.target.value })}
-                placeholder="e.g., World Geography Notes"
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-item-url">URL</Label>
-              <Input
-                id="edit-item-url"
-                value={itemForm.url}
-                onChange={(e) => setItemForm({ ...itemForm, url: e.target.value })}
-                placeholder="https://example.com or #anchor"
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-item-type">Type</Label>
-              <Select
-                value={itemForm.type}
-                onValueChange={(value: 'link' | 'pdf') => setItemForm({ ...itemForm, type: value })}
-              >
-                <SelectTrigger id="edit-item-type">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="link">Link</SelectItem>
-                  <SelectItem value="pdf">PDF</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingItem(null)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={() =>
-                editingItem && handleUpdateItem(editingItem.categoryId, editingItem.itemId)
-              }
-            >
-              Update Item
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <AdminSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+      {/* Photo Upload FAB Tool */}
       <PhotoUploadFabTool />
+
+      {/* Settings Dialog */}
+      <AdminSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </div>
   );
 }

@@ -1,85 +1,62 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T23:41:44.138Z",
+  "generatedAt": "2026-02-13T00:01:39.630Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 4,
+    "total": 3,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Remove the red 'Access Denied' message UI from the Admin Panel flow so it no longer blocks access to the password input. Specifically, eliminate the destructive alert box rendered by the current access-denied screen from admin navigation/guards (and remove any references that cause it to render for the Admin Panel unlock flow).",
+        "summary": "Fix the admin route guard so it does not show the 'Access Denied' screen while the admin-status check is still loading; instead, render a clear loading state until `useIsAdmin()` has resolved (success or error).",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/auth/AdminRouteGuard.tsx",
-          "frontend/src/components/auth/AccessDeniedScreen.tsx"
+          "frontend/src/components/auth/AdminAuthLoadingScreen.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/auth/AdminRouteGuard.tsx"
+          "frontend/src/components/auth/AdminRouteGuard.tsx",
+          "frontend/src/components/auth/AdminAuthLoadingScreen.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Replace the current modal-based admin password gate with a simple, visible, in-page login form rendered directly inside the Admin Panel page when the admin session is not unlocked (no modals/popups). The form must have: (1) headline text exactly 'Admin Login', (2) a password input (type='password') with placeholder exactly 'Enter Password', and (3) a large green button labeled exactly 'Unlock Dashboard'.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/admin/AdminUnlockInlineForm.tsx",
-          "frontend/src/pages/admin/AdminDashboardPage.tsx",
-          "frontend/src/components/auth/AdminPasswordRequiredScreen.tsx",
-          "frontend/src/components/auth/AdminPasswordGateModal.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/admin/AdminUnlockInlineForm.tsx",
-          "frontend/src/pages/admin/AdminDashboardPage.tsx",
-          "frontend/src/components/auth/AdminPasswordRequiredScreen.tsx",
-          "frontend/src/components/auth/AdminPasswordGateModal.tsx"
-        ]
+        "summary": "Ensure backend admin authorization is correctly bootstrap-able so legitimate administrators are not permanently treated as non-admins (e.g., add an explicit admin bootstrap/management API that can be invoked safely to grant admin to a principal, with strict access control to prevent privilege escalation).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-3",
-        "summary": "Implement the requested unlock logic for the in-page Admin Panel login form: on clicking 'Unlock Dashboard', validate the password exactly against '@ni#ra&j*gurja:r'. If correct, call localStorage.setItem('isAdmin','true') and refresh the Admin Panel section so the dashboard content becomes visible. If incorrect, show a standard browser alert with text exactly 'Wrong Password' (no extra punctuation).",
+        "summary": "Update the admin access-denied UX to guide the user when they are logged in but not an admin: keep the existing English message but add a clear next step (e.g., sign out and sign in with the admin identity, or contact the administrator).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useClientAdminAuth.ts",
-          "frontend/src/components/admin/AdminUnlockInlineForm.tsx",
-          "frontend/src/pages/admin/AdminDashboardPage.tsx"
+          "frontend/src/components/auth/AccessDeniedScreen.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useClientAdminAuth.ts",
-          "frontend/src/components/admin/AdminUnlockInlineForm.tsx",
-          "frontend/src/pages/admin/AdminDashboardPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Hide Admin Panel dashboard controls until successfully unlocked: only render the 'Job Posts', 'Settings', and 'Manage Quiz' buttons/controls after localStorage 'isAdmin' has been set to 'true' (i.e., after successful unlock).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/admin/AdminDashboardPage.tsx",
-          "frontend/src/components/auth/AdminRouteGuard.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/admin/AdminDashboardPage.tsx",
-          "frontend/src/components/auth/AdminRouteGuard.tsx"
+          "frontend/src/components/auth/AccessDeniedScreen.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/admin/AdminUnlockInlineForm.tsx",
-    "frontend/src/components/auth/AdminPasswordGateModal.tsx",
-    "frontend/src/components/auth/AdminPasswordRequiredScreen.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/auth/AccessDeniedScreen.tsx",
+    "frontend/src/components/auth/AdminAuthLoadingScreen.tsx",
     "frontend/src/components/auth/AdminRouteGuard.tsx",
-    "frontend/src/hooks/useClientAdminAuth.ts",
-    "frontend/src/pages/admin/AdminDashboardPage.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

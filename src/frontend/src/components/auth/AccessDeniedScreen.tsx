@@ -28,9 +28,18 @@ export default function AccessDeniedScreen({ mode = 'notAdmin' }: AccessDeniedSc
               : 'You do not have permission to access this page. Only administrators can manage job posts.'}
           </AlertDescription>
         </Alert>
-        {isLoginRequired && (
+        {isLoginRequired ? (
           <div className="mt-6 flex justify-center">
             <LoginButton />
+          </div>
+        ) : (
+          <div className="mt-6 space-y-3">
+            <p className="text-sm text-muted-foreground text-center">
+              If you are an administrator, please sign out and sign in again with your admin identity.
+            </p>
+            <div className="flex justify-center">
+              <LoginButton />
+            </div>
           </div>
         )}
       </div>

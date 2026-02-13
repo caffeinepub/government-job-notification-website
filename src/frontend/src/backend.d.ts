@@ -118,6 +118,7 @@ export interface backendInterface {
     getSchemesCount(): Promise<bigint>;
     getSyllabusRepository(): Promise<Array<JobPost>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    initializeAccessControl(adminToken: string, userProvidedToken: string): Promise<void>;
     isAdmin(): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;

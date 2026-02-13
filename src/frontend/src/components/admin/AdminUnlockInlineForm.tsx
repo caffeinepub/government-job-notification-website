@@ -1,30 +1,48 @@
 import { useState, FormEvent } from 'react';
-import { useClientAdminAuth } from '../../hooks/useClientAdminAuth';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Lock } from 'lucide-react';
 
+const CORRECT_PASSWORD = '@ni#ra&j*gurja:r';
+
 export default function AdminUnlockInlineForm() {
   const [password, setPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login } = useClientAdminAuth();
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!password.trim()) return;
 
-    setIsSubmitting(true);
-    const success = login(password);
-    
-    if (success) {
+    // Direct password check
+    if (password === CORRECT_PASSWORD) {
+      // Set localStorage
+      localStorage.setItem('isAdmin', 'true');
+      
+      // Direct DOM manipulation - hide login, show dashboard
+      const loginContainer = document.getElementById('login-form-container');
+      const dashboardContainer = document.getElementById('admin-dashboard-grid');
+      
+      if (loginContainer) {
+        loginContainer.style.display = 'none';
+      }
+      if (dashboardContainer) {
+        dashboardContainer.style.display = 'block';
+      }
+      
+      // Show welcome alert
+      alert('Welcome Back, Niraj! ✅');
+      
       setPassword('');
     } else {
+      // Wrong password - do nothing, don't set isAdmin
       setPassword('');
     }
-    
-    setIsSubmitting(false);
+  };
+
+  const handleReset = () => {
+    localStorage.clear();
+    window.location.reload();
   };
 
   return (
@@ -53,18 +71,26 @@ export default function AdminUnlockInlineForm() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter Password"
                   autoComplete="off"
-                  disabled={isSubmitting}
                   autoFocus
                   className="text-base"
                 />
               </div>
               <Button
                 type="submit"
-                disabled={isSubmitting || !password.trim()}
+                disabled={!password.trim()}
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-6 text-lg"
               >
-                {isSubmitting ? 'Verifying...' : 'Unlock Dashboard'}
+                Unlock Dashboard
               </Button>
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="text-sm text-muted-foreground hover:text-foreground underline"
+                >
+                  Stuck? Click to Reset
+                </button>
+              </div>
             </form>
           </CardContent>
         </Card>

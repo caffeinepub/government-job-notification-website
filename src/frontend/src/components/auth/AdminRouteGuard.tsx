@@ -1,37 +1,39 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { useInternetIdentity } from '../../hooks/useInternetIdentity';
 import { useIsAdmin } from '../../hooks/useIsAdmin';
 import AccessDeniedScreen from './AccessDeniedScreen';
+import AdminAuthLoadingScreen from './AdminAuthLoadingScreen';
 
 interface AdminRouteGuardProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export default function AdminRouteGuard({ children }: AdminRouteGuardProps) {
   const { identity, isInitializing } = useInternetIdentity();
   const { data: isAdmin, isLoading: isAdminLoading, isFetched } = useIsAdmin();
 
-  // Show loading state while checking authentication and admin status
-  if (isInitializing || isAdminLoading) {
-    return (
-      <div className="container mx-auto px-4 py-12">
-        <div className="text-center">
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
+  const isAuthenticated = !!identity;
+
+  // Show loading state while Internet Identity is initializing
+  if (isInitializing) {
+    return <AdminAuthLoadingScreen />;
   }
 
   // Not authenticated - show login required
-  if (!identity) {
+  if (!isAuthenticated) {
     return <AccessDeniedScreen mode="loginRequired" />;
   }
 
-  // Authenticated but not admin - show not authorized
-  if (isFetched && !isAdmin) {
-    return <AccessDeniedScreen mode="notAdmin" />;
+  // Authenticated but admin status is still loading - show loading state
+  if (isAdminLoading || !isFetched) {
+    return <AdminAuthLoadingScreen />;
   }
 
-  // Authenticated and admin - render children (page handles unlock state)
-  return <>{children}</>;
+  // Authenticated and admin check complete - render children if admin
+  if (isAdmin) {
+    return <>{children}</>;
+  }
+
+  // Authenticated but not admin - show access denied
+  return <AccessDeniedScreen mode="notAdmin" />;
 }

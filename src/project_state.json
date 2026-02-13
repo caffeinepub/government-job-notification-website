@@ -1,77 +1,41 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Implement a visible in-page Admin Panel login flow and hide dashboard controls until authenticated, removing the blocking 'Access Denied' UI.",
-  "architectural_notes": [
-    "Admin authentication state stored in localStorage key 'isAdmin' as string 'true'.",
-    "Admin Panel should conditionally render: show login form when not authenticated; show dashboard controls when authenticated.",
-    "On failed password entry, use standard browser alert 'Wrong Password' (no inline error box)."
-  ],
+  "summary": "New project",
+  "architectural_notes": [],
   "known_issues": [
-    "Admin Panel currently locked because password input is not visible (blocked by 'Access Denied' UI)."
+    "Non-admin users (or misidentified users) see 'Access Denied: Only administrators can manage job posts' when trying to access job post management page; permission/role check likely misconfigured."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-remove-the-red-access-denied-message-ui-from-the-admin-panel-flow-so-it-no-longer-blocks-access-to-the-password-input-specifically-eliminate-the-destructive-alert-box-rendered-by-the-current-access-denied-screen-from-admin-navigation-guards-and-remove-any-references-that-cause-it-to-render-for-the-admin-panel-unlock-flow",
-      "title": "Remove the red 'Access Denied' message UI from the Admin Panel flow so it no longer blocks access to the password input. Specifically, eliminate the destructive alert box rendered by the current access-denied screen from admin navigation/guards (and remove any references that cause it to render for the Admin Panel unlock flow).",
+      "id": "feature-fix-the-admin-route-guard-so-it-does-not-show-the-access-denied-screen-while-the-admin-status-check-is-still-loading-instead-render-a-clear-loading-state-until-useisadmin-has-resolved-success-or-error",
+      "title": "Fix the admin route guard so it does not show the 'Access Denied' screen while the admin-status check is still loading; instead, render a clear loading state until `useIsAdmin()` has resolved (success or error).",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-replace-the-current-modal-based-admin-password-gate-with-a-simple-visible-in-page-login-form-rendered-directly-inside-the-admin-panel-page-when-the-admin-session-is-not-unlocked-no-modals-popups-the-form-must-have-1-headline-text-exactly-admin-login-2-a-password-input-type-password-with-placeholder-exactly-enter-password-and-3-a-large-green-button-labeled-exactly-unlock-dashboard",
-      "title": "Replace the current modal-based admin password gate with a simple, visible, in-page login form rendered directly inside the Admin Panel page when the admin session is not unlocked (no modals/popups). The form must have: (1) headline text exactly 'Admin Login', (2) a password input (type='password') with placeholder exactly 'Enter Password', and (3) a large green button labeled exactly 'Unlock Dashboard'.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-the-requested-unlock-logic-for-the-in-page-admin-panel-login-form-on-clicking-unlock-dashboard-validate-the-password-exactly-against-ni-ra-j-gurja-r-if-correct-call-localstorage-setitem-isadmin-true-and-refresh-the-admin-panel-section-so-the-dashboard-content-becomes-visible-if-incorrect-show-a-standard-browser-alert-with-text-exactly-wrong-password-no-extra-punctuation",
-      "title": "Implement the requested unlock logic for the in-page Admin Panel login form: on clicking 'Unlock Dashboard', validate the password exactly against '@ni#ra&j*gurja:r'. If correct, call localStorage.setItem('isAdmin','true') and refresh the Admin Panel section so the dashboard content becomes visible. If incorrect, show a standard browser alert with text exactly 'Wrong Password' (no extra punctuation).",
+      "id": "feature-update-the-admin-access-denied-ux-to-guide-the-user-when-they-are-logged-in-but-not-an-admin-keep-the-existing-english-message-but-add-a-clear-next-step-e-g-sign-out-and-sign-in-with-the-admin-identity-or-contact-the-administrator",
+      "title": "Update the admin access-denied UX to guide the user when they are logged in but not an admin: keep the existing English message but add a clear next step (e.g., sign out and sign in with the admin identity, or contact the administrator).",
       "reqIds": [
         "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-hide-admin-panel-dashboard-controls-until-successfully-unlocked-only-render-the-job-posts-settings-and-manage-quiz-buttons-controls-after-localstorage-isadmin-has-been-set-to-true-i-e-after-successful-unlock",
-      "title": "Hide Admin Panel dashboard controls until successfully unlocked: only render the 'Job Posts', 'Settings', and 'Manage Quiz' buttons/controls after localStorage 'isAdmin' has been set to 'true' (i.e., after successful unlock).",
-      "reqIds": [
-        "REQ-4"
       ],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
-      "id": "AR-1",
-      "summary": "Remove the red 'Access Denied' message box from the Admin Panel UI",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
       "id": "AR-2",
-      "summary": "Render an in-page (non-modal) Admin Login form when not authenticated (headline, password input, green 'Unlock Dashboard' button)",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "On 'Unlock Dashboard', validate password; if correct set localStorage isAdmin=true and refresh Admin Panel; if wrong show browser alert 'Wrong Password'",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Only show 'Job Posts', 'Settings', and 'Manage Quiz' buttons after successful admin login",
-      "reqIds": [],
+      "summary": "Ensure backend admin authorization is correctly bootstrap-able so legitimate administrators are not permanently treated as non-admins (e.g., add an explicit admin bootstrap/management API that can be invoked safely to grant admin to a principal, with strict access control to prevent privilege escalation).",
+      "reqIds": [
+        "REQ-2"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "Unblock Admin Panel with in-page password login and hide dashboard controls until unlocked",
+  "projectName": "Fix incorrect 'Access Denied' when accessing admin job post management",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

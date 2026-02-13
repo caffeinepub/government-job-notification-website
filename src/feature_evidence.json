@@ -2,9 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-remove-the-red-access-denied-message-ui-from-the-admin-panel-flow-so-it-no-longer-blocks-access-to-the-password-input-specifically-eliminate-the-destructive-alert-box-rendered-by-the-current-access-denied-screen-from-admin-navigation-guards-and-remove-any-references-that-cause-it-to-render-for-the-admin-panel-unlock-flow",
-      "featureTitle": "Remove the red 'Access Denied' message UI from the Admin Panel flow so it no longer blocks access to the password input. Specifically, eliminate the destructive alert box rendered by the current access-denied screen from admin navigation/guards (and remove any references that cause it to render for the Admin Panel unlock flow).",
+      "featureId": "feature-fix-the-admin-route-guard-so-it-does-not-show-the-access-denied-screen-while-the-admin-status-check-is-still-loading-instead-render-a-clear-loading-state-until-useisadmin-has-resolved-success-or-error",
+      "featureTitle": "Fix the admin route guard so it does not show the 'Access Denied' screen while the admin-status check is still loading; instead, render a clear loading state until `useIsAdmin()` has resolved (success or error).",
       "files": [
+        "frontend/src/components/auth/AdminAuthLoadingScreen.tsx",
         "frontend/src/components/auth/AdminRouteGuard.tsx"
       ],
       "components": [
@@ -21,34 +22,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-replace-the-current-modal-based-admin-password-gate-with-a-simple-visible-in-page-login-form-rendered-directly-inside-the-admin-panel-page-when-the-admin-session-is-not-unlocked-no-modals-popups-the-form-must-have-1-headline-text-exactly-admin-login-2-a-password-input-type-password-with-placeholder-exactly-enter-password-and-3-a-large-green-button-labeled-exactly-unlock-dashboard",
-      "featureTitle": "Replace the current modal-based admin password gate with a simple, visible, in-page login form rendered directly inside the Admin Panel page when the admin session is not unlocked (no modals/popups). The form must have: (1) headline text exactly 'Admin Login', (2) a password input (type='password') with placeholder exactly 'Enter Password', and (3) a large green button labeled exactly 'Unlock Dashboard'.",
+      "featureId": "feature-update-the-admin-access-denied-ux-to-guide-the-user-when-they-are-logged-in-but-not-an-admin-keep-the-existing-english-message-but-add-a-clear-next-step-e-g-sign-out-and-sign-in-with-the-admin-identity-or-contact-the-administrator",
+      "featureTitle": "Update the admin access-denied UX to guide the user when they are logged in but not an admin: keep the existing English message but add a clear next step (e.g., sign out and sign in with the admin identity, or contact the administrator).",
       "files": [
-        "frontend/src/components/admin/AdminUnlockInlineForm.tsx",
-        "frontend/src/components/auth/AdminPasswordGateModal.tsx",
-        "frontend/src/components/auth/AdminPasswordRequiredScreen.tsx",
-        "frontend/src/pages/admin/AdminDashboardPage.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-implement-the-requested-unlock-logic-for-the-in-page-admin-panel-login-form-on-clicking-unlock-dashboard-validate-the-password-exactly-against-ni-ra-j-gurja-r-if-correct-call-localstorage-setitem-isadmin-true-and-refresh-the-admin-panel-section-so-the-dashboard-content-becomes-visible-if-incorrect-show-a-standard-browser-alert-with-text-exactly-wrong-password-no-extra-punctuation",
-      "featureTitle": "Implement the requested unlock logic for the in-page Admin Panel login form: on clicking 'Unlock Dashboard', validate the password exactly against '@ni#ra&j*gurja:r'. If correct, call localStorage.setItem('isAdmin','true') and refresh the Admin Panel section so the dashboard content becomes visible. If incorrect, show a standard browser alert with text exactly 'Wrong Password' (no extra punctuation).",
-      "files": [
-        "frontend/src/components/admin/AdminUnlockInlineForm.tsx",
-        "frontend/src/hooks/useClientAdminAuth.ts",
-        "frontend/src/pages/admin/AdminDashboardPage.tsx"
+        "frontend/src/components/auth/AccessDeniedScreen.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -60,26 +37,6 @@
       ],
       "testIds": [
         "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-hide-admin-panel-dashboard-controls-until-successfully-unlocked-only-render-the-job-posts-settings-and-manage-quiz-buttons-controls-after-localstorage-isadmin-has-been-set-to-true-i-e-after-successful-unlock",
-      "featureTitle": "Hide Admin Panel dashboard controls until successfully unlocked: only render the 'Job Posts', 'Settings', and 'Manage Quiz' buttons/controls after localStorage 'isAdmin' has been set to 'true' (i.e., after successful unlock).",
-      "files": [
-        "frontend/src/components/auth/AdminRouteGuard.tsx",
-        "frontend/src/pages/admin/AdminDashboardPage.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
       ],
       "confidence": "high"
     }

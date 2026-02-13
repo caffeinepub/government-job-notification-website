@@ -1,91 +1,83 @@
 {
   "kind": "build_request",
-  "title": "Unblock Admin Panel with in-page password login and hide dashboard controls until unlocked",
+  "title": "Fix incorrect 'Access Denied' when accessing admin job post management",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Remove the red 'Access Denied' message UI from the Admin Panel flow so it no longer blocks access to the password input. Specifically, eliminate the destructive alert box rendered by the current access-denied screen from admin navigation/guards (and remove any references that cause it to render for the Admin Panel unlock flow).",
+      "text": "Fix the admin route guard so it does not show the 'Access Denied' screen while the admin-status check is still loading; instead, render a clear loading state until `useIsAdmin()` has resolved (success or error).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-4"
         ],
         "quotes": [
-          "DELETE the 'Access Denied' Error:\n\u000bRemove the red 'Access Denied' message box completely from the code. It is blocking me."
+          "Access Denied\nYou do not have permission to access this page. Only administrators can manage job posts.\nइस एरर को ठीक करो जल्दी से जल्दी"
         ]
       },
       "acceptanceCriteria": [
-        "Navigating to the Admin Panel no longer shows any red 'Access Denied' alert box.",
-        "The password input is visible on the page when admin access is not yet unlocked."
+        "When a logged-in administrator navigates to `/admin`, `/admin/dashboard`, `/admin/posts`, or `/admin/posts/:id/edit`, the UI does not flash or get stuck on the 'Access Denied' message during the initial admin check.",
+        "While `useIsAdmin()` is loading, the route guard shows a dedicated loading UI (not 'Access Denied').",
+        "After the admin check resolves true, the protected page renders normally without requiring a manual refresh."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Replace the current modal-based admin password gate with a simple, visible, in-page login form rendered directly inside the Admin Panel page when the admin session is not unlocked (no modals/popups). The form must have: (1) headline text exactly 'Admin Login', (2) a password input (type='password') with placeholder exactly 'Enter Password', and (3) a large green button labeled exactly 'Unlock Dashboard'.",
-      "target": "frontend",
+      "text": "Ensure backend admin authorization is correctly bootstrap-able so legitimate administrators are not permanently treated as non-admins (e.g., add an explicit admin bootstrap/management API that can be invoked safely to grant admin to a principal, with strict access control to prevent privilege escalation).",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-4"
         ],
         "quotes": [
-          "CREATE a Visible Login Form (No Modals):\n\u000binside the 'Admin Panel' section, check if the user is logged in.\n\u000bIf NOT logged in: Render a simple, visible form directly on the page (not a popup).\n\u000bHeadline: 'Admin Login'\n\u000bInput: Type=password, Placeholder='Enter Password'\n\u000bButton: A big green button labeled 'Unlock Dashboard'."
+          "Only administrators can manage job posts."
         ]
       },
       "acceptanceCriteria": [
-        "When not unlocked, the Admin Panel shows an in-page form (not a dialog/modal) with the specified headline, placeholder, and button label.",
-        "The 'Unlock Dashboard' button is visually styled as a prominent green primary action (e.g., Tailwind green background) and is larger than a typical small/secondary button.",
-        "No modal is automatically opened for admin password entry (the existing auto-open modal behavior is removed from the Admin Panel flow)."
+        "There is a documented, testable way to make at least one principal an admin after deployment without editing canister state manually.",
+        "Once a principal is granted admin, `isAdmin()` returns true for that principal and job post CRUD (`addJobPost`, `updateJobPost`, `deleteJobPost`) succeeds for that principal.",
+        "Non-admin principals cannot grant themselves (or others) admin privileges."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Implement the requested unlock logic for the in-page Admin Panel login form: on clicking 'Unlock Dashboard', validate the password exactly against '@ni#ra&j*gurja:r'. If correct, call localStorage.setItem('isAdmin','true') and refresh the Admin Panel section so the dashboard content becomes visible. If incorrect, show a standard browser alert with text exactly 'Wrong Password' (no extra punctuation).",
+      "text": "Update the admin access-denied UX to guide the user when they are logged in but not an admin: keep the existing English message but add a clear next step (e.g., sign out and sign in with the admin identity, or contact the administrator).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-4"
         ],
         "quotes": [
-          "The Logic:\n\u000bWhen I click 'Unlock Dashboard', check if the password is @ni#ra&j*gurja:r\n\u000bIf correct -> Save localStorage.setItem('isAdmin', 'true') -> Refresh the section to show the Dashboard (Job Posts, Settings, etc.).\n\u000bIf wrong -> Show a standard browser alert: 'Wrong Password'."
+          "You do not have permission to access this page. Only administrators can manage job posts."
         ]
       },
       "acceptanceCriteria": [
-        "Entering the correct password sets localStorage key 'isAdmin' to string value 'true' and the Admin Panel switches to show the dashboard content without requiring a full page reload.",
-        "Entering an incorrect password triggers window.alert('Wrong Password') exactly.",
-        "The local client-side admin auth hook/logic does not emit 'Wrong Password!' (with an exclamation) anywhere in the Admin Panel flow."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Hide Admin Panel dashboard controls until successfully unlocked: only render the 'Job Posts', 'Settings', and 'Manage Quiz' buttons/controls after localStorage 'isAdmin' has been set to 'true' (i.e., after successful unlock).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "The Dashboard (Hidden Content):\n\u000bOnly show the 'Job Posts', 'Settings', and 'Manage Quiz' buttons IF the user has successfully logged in."
-        ]
-      },
-      "acceptanceCriteria": [
-        "When not unlocked, the Admin Panel does not render the dashboard navigation/actions for 'Job Posts', 'Settings', or 'Manage Quiz'.",
-        "After a successful unlock, the Admin Panel renders those dashboard navigation/actions normally.",
-        "Logging out (or clearing the unlock flag) hides those controls again and returns to the in-page login form."
+        "If a user is authenticated but not an admin, the access denied screen provides a clear English next-step instruction.",
+        "If a user is not authenticated, the screen continues to show the login-required UI with the login button."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (shadcn components) or other immutable paths listed in SYSTEM_CONTEXT.",
-    "Keep the backend as a single Motoko actor; no backend changes are required for this fix unless strictly necessary."
+    "Do not edit any files under frontend/src/components/ui (Shadcn UI components are read-only).",
+    "Do not edit frontend/src/hooks/useInternetIdentity.ts / .tsx, frontend/src/hooks/useActor.ts, or frontend/src/main.tsx (immutable paths).",
+    "Keep all Motoko backend logic in backend/main.mo (single-actor architecture)."
   ],
   "nonGoals": [
-    "Implementing a secure server-side admin authentication system (this change is explicitly localStorage-based).",
-    "Adding third-party authentication providers beyond existing Internet Identity integration.",
-    "Changing admin feature set beyond making the login form visible and gating the specified dashboard buttons/sections."
+    "Do not add third-party authentication providers; only Internet Identity is allowed.",
+    "Do not add new admin product features beyond fixing the permission/role check flow and providing a safe admin bootstrap path."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }
